@@ -469,7 +469,10 @@ Base URL: `https://api.gitbook.com/v1`
 ## Testing Strategy
 
 ### Unit Tests
-- [ ] API client tests
+- [x] API client tests
+- [x] Network interceptor tests (error, auth, retry)
+- [x] Data model tests (serialization/deserialization)
+- [x] Secure storage tests
 - [ ] Repository tests
 - [ ] Use case tests
 - [ ] Provider tests
