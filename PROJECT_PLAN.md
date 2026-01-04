@@ -71,40 +71,40 @@ lib/
 - [x] Create request/response interceptors
 - [x] Implement error handling middleware
 - [x] Add logging interceptor for debugging
-- [ ] Implement retry logic for failed requests
+- [x] Implement retry logic for failed requests
 
 #### 1.3 GitBook API Client
 - [x] Define API endpoints constants
-- [ ] Implement authentication endpoints
-  - [ ] POST /oauth/token
-  - [ ] Token refresh logic
-- [ ] Implement Organizations API
-  - [ ] GET /orgs - List organizations
-  - [ ] GET /orgs/{orgId} - Get organization details
-- [ ] Implement Spaces API
-  - [ ] GET /orgs/{orgId}/spaces - List spaces
-  - [ ] GET /spaces/{spaceId} - Get space details
-  - [ ] POST /spaces - Create space
-  - [ ] PATCH /spaces/{spaceId} - Update space
-  - [ ] DELETE /spaces/{spaceId} - Delete space
-- [ ] Implement Pages/Content API
-  - [ ] GET /spaces/{spaceId}/content - List pages
-  - [ ] GET /spaces/{spaceId}/content/path/{path} - Get page by path
-  - [ ] POST /spaces/{spaceId}/content - Create page
-  - [ ] PATCH /spaces/{spaceId}/content/{pageId} - Update page
-  - [ ] DELETE /spaces/{spaceId}/content/{pageId} - Delete page
-- [ ] Implement Change Requests API
-  - [ ] GET /spaces/{spaceId}/change-requests - List change requests
-  - [ ] POST /spaces/{spaceId}/change-requests - Create change request
-  - [ ] GET /spaces/{spaceId}/change-requests/{crId} - Get change request
-  - [ ] POST /spaces/{spaceId}/change-requests/{crId}/merge - Merge
-- [ ] Implement Search API
-  - [ ] GET /orgs/{orgId}/search - Global search
-  - [ ] GET /spaces/{spaceId}/search - Space search
+- [x] Implement authentication endpoints
+  - [x] POST /oauth/token
+  - [x] Token refresh logic
+- [x] Implement Organizations API
+  - [x] GET /orgs - List organizations
+  - [x] GET /orgs/{orgId} - Get organization details
+- [x] Implement Spaces API
+  - [x] GET /orgs/{orgId}/spaces - List spaces
+  - [x] GET /spaces/{spaceId} - Get space details
+  - [x] POST /spaces - Create space
+  - [x] PATCH /spaces/{spaceId} - Update space
+  - [x] DELETE /spaces/{spaceId} - Delete space
+- [x] Implement Pages/Content API
+  - [x] GET /spaces/{spaceId}/content - List pages
+  - [x] GET /spaces/{spaceId}/content/path/{path} - Get page by path
+  - [x] POST /spaces/{spaceId}/content - Create page
+  - [x] PATCH /spaces/{spaceId}/content/{pageId} - Update page
+  - [x] DELETE /spaces/{spaceId}/content/{pageId} - Delete page
+- [x] Implement Change Requests API
+  - [x] GET /spaces/{spaceId}/change-requests - List change requests
+  - [x] POST /spaces/{spaceId}/change-requests - Create change request
+  - [x] GET /spaces/{spaceId}/change-requests/{crId} - Get change request
+  - [x] POST /spaces/{spaceId}/change-requests/{crId}/merge - Merge
+- [x] Implement Search API
+  - [x] GET /orgs/{orgId}/search - Global search
+  - [x] GET /spaces/{spaceId}/search - Space search
 
 #### 1.4 Local Storage
 - [ ] Set up Hive for lightweight storage
-- [ ] Implement secure storage for tokens
+- [x] Implement secure storage for tokens
 - [ ] Set up SQLite (drift) for content caching
 - [ ] Define database schema for offline content
 - [ ] Implement cache invalidation strategy

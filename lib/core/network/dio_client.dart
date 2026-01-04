@@ -6,13 +6,20 @@ import '../constants/api_constants.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
+import 'interceptors/retry_interceptor.dart';
 
 /// HTTP client wrapper using Dio
 class DioClient {
   late final Dio _dio;
   final TokenStorage tokenStorage;
+  final TokenRefreshCallback? onTokenRefresh;
+  final AuthFailureCallback? onAuthFailure;
 
-  DioClient({required this.tokenStorage}) {
+  DioClient({
+    required this.tokenStorage,
+    this.onTokenRefresh,
+    this.onAuthFailure,
+  }) {
     _dio = Dio(_baseOptions);
     _setupInterceptors();
   }
@@ -28,9 +35,17 @@ class DioClient {
         },
       );
 
+  /// Get the underlying Dio instance (for retrofit)
+  Dio get dio => _dio;
+
   void _setupInterceptors() {
     _dio.interceptors.addAll([
-      AuthInterceptor(tokenStorage: tokenStorage),
+      AuthInterceptor(
+        tokenStorage: tokenStorage,
+        onTokenRefresh: onTokenRefresh,
+        onAuthFailure: onAuthFailure,
+      ),
+      RetryInterceptor(),
       ErrorInterceptor(),
       if (AppConfig.instance.enableLogging && kDebugMode) LoggingInterceptor(),
     ]);
