@@ -103,11 +103,11 @@ lib/
   - [x] GET /spaces/{spaceId}/search - Space search
 
 #### 1.4 Local Storage
-- [ ] Set up Hive for lightweight storage
+- [x] Set up Hive for lightweight storage
 - [x] Implement secure storage for tokens
-- [ ] Set up SQLite (drift) for content caching
-- [ ] Define database schema for offline content
-- [ ] Implement cache invalidation strategy
+- [x] Set up SQLite (drift) for content caching
+- [x] Define database schema for offline content
+- [x] Implement cache invalidation strategy
 
 ---
 
@@ -473,6 +473,7 @@ Base URL: `https://api.gitbook.com/v1`
 - [x] Network interceptor tests (error, auth, retry)
 - [x] Data model tests (serialization/deserialization)
 - [x] Secure storage tests
+- [x] Local storage tests (Hive, Drift database, cache manager, local datasource)
 - [ ] Repository tests
 - [ ] Use case tests
 - [ ] Provider tests
