@@ -48,11 +48,11 @@ void main() {
           .thenAnswer((_) async => const UserSettings());
     });
 
-    test('should load settings on init', () async {
+    test('should load settings when loadSettings is called', () async {
       notifier = UserSettingsNotifier(mockRepository);
 
-      // Wait for async initialization
-      await Future.delayed(Duration.zero);
+      // Notifier no longer auto-loads, call explicitly
+      await notifier.loadSettings();
 
       verify(() => mockRepository.getUserSettings()).called(1);
     });
@@ -62,7 +62,6 @@ void main() {
           .thenAnswer((_) async {});
 
       notifier = UserSettingsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
 
       await notifier.updateThemeMode(ThemeModeSetting.dark);
 
@@ -74,7 +73,6 @@ void main() {
           .thenAnswer((_) async {});
 
       notifier = UserSettingsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
 
       await notifier.updateOfflineMode(true);
 
@@ -86,7 +84,6 @@ void main() {
           .thenAnswer((_) async {});
 
       notifier = UserSettingsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
 
       await notifier.updateEditorMode(EditorMode.markdown);
 
@@ -98,7 +95,6 @@ void main() {
           .thenAnswer((_) async {});
 
       notifier = UserSettingsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
 
       await notifier.updateFontSize(20.0);
 
@@ -130,7 +126,7 @@ void main() {
   group('OrganizationsNotifier', () {
     late OrganizationsNotifier notifier;
 
-    test('should load organizations on init', () async {
+    test('should load organizations when loadOrganizations is called', () async {
       final orgs = [
         const OrganizationModel(id: 'org-1', title: 'Org One'),
         const OrganizationModel(id: 'org-2', title: 'Org Two'),
@@ -141,7 +137,8 @@ void main() {
           .thenAnswer((_) async => orgs.first);
 
       notifier = OrganizationsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
+      // Notifier no longer auto-loads, call explicitly
+      await notifier.loadOrganizations();
 
       expect(notifier.state.organizations.length, 2);
       expect(notifier.state.currentOrganization?.id, 'org-1');
@@ -159,7 +156,6 @@ void main() {
           .thenAnswer((_) async => orgs.first);
 
       notifier = OrganizationsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
 
       await notifier.refresh();
 
@@ -179,7 +175,7 @@ void main() {
           .thenAnswer((_) async {});
 
       notifier = OrganizationsNotifier(mockRepository);
-      await Future.delayed(Duration.zero);
+      await notifier.loadOrganizations();
 
       await notifier.setCurrentOrganization(org2);
 

@@ -34,11 +34,11 @@ class UserSettingsState {
 class UserSettingsNotifier extends StateNotifier<UserSettingsState> {
   final UserRepository _repository;
 
-  UserSettingsNotifier(this._repository) : super(const UserSettingsState()) {
-    _loadSettings();
-  }
+  UserSettingsNotifier(this._repository) : super(const UserSettingsState());
+  // Note: Settings will be loaded on first access or when explicitly requested
 
-  Future<void> _loadSettings() async {
+  /// Load user settings
+  Future<void> loadSettings() async {
     state = state.copyWith(isLoading: true);
     try {
       final settings = await _repository.getUserSettings();
@@ -142,9 +142,8 @@ class OrganizationsState {
 class OrganizationsNotifier extends StateNotifier<OrganizationsState> {
   final UserRepository _repository;
 
-  OrganizationsNotifier(this._repository) : super(const OrganizationsState()) {
-    _loadOrganizations();
-  }
+  OrganizationsNotifier(this._repository) : super(const OrganizationsState());
+  // Note: Don't auto-load in constructor - HomeScreen calls loadOrganizations explicitly
 
   Future<void> _loadOrganizations({bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true);

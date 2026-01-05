@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app.dart';
 import 'core/config/app_config.dart';
+import 'core/storage/hive_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,12 +11,8 @@ void main() async {
   // Initialize app configuration
   AppConfig.init(Environment.dev);
 
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
-
-  // TODO: Initialize secure storage
-  // TODO: Open Hive boxes
-  // TODO: Initialize database
+  // Initialize Hive storage (opens all required boxes)
+  await HiveStorage.initialize();
 
   runApp(
     const ProviderScope(

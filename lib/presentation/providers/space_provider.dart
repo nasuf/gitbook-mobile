@@ -259,9 +259,8 @@ class RecentSpacesState {
 class RecentSpacesNotifier extends StateNotifier<RecentSpacesState> {
   final SpaceRepository _repository;
 
-  RecentSpacesNotifier(this._repository) : super(const RecentSpacesState()) {
-    loadRecentSpaces();
-  }
+  RecentSpacesNotifier(this._repository) : super(const RecentSpacesState());
+  // Note: Don't auto-load in constructor - HomeScreen calls loadRecentSpaces explicitly
 
   /// Load recent spaces
   Future<void> loadRecentSpaces() async {

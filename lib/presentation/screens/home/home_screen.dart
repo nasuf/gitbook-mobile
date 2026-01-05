@@ -25,7 +25,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // Delay provider modification until after widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   @override
@@ -34,9 +37,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  void _loadData() {
-    // Load organizations first, then spaces
-    ref.read(organizationsProvider.notifier).loadOrganizations();
+  Future<void> _loadData() async {
+    // Load organizations first, then load spaces after organizations are ready
+    await ref.read(organizationsProvider.notifier).loadOrganizations();
+    // Now that organizations are loaded, load spaces
     ref.read(spacesProvider.notifier).loadSpaces();
     ref.read(recentSpacesProvider.notifier).loadRecentSpaces();
   }
@@ -150,6 +154,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) {
     if (orgState.isLoading && orgState.organizations.isEmpty) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    // Show error state if there's an error loading organizations
+    if (orgState.error != null && orgState.organizations.isEmpty) {
+      return ErrorState(
+        message: 'Failed to load organizations: ${orgState.error}',
+        onRetry: () => ref.read(organizationsProvider.notifier).refresh(),
+      );
     }
 
     if (orgState.organizations.isEmpty) {
