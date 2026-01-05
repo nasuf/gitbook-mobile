@@ -14,12 +14,23 @@ abstract class SpaceRepository {
   /// Get a collection by ID
   Future<SpaceCollection> getCollectionById(String collectionId);
 
+  /// Get all collections for an organization
+  Future<List<SpaceCollection>> getCollections(String organizationId);
+
+  /// Create a new collection
+  Future<SpaceCollection> createCollection({
+    required String organizationId,
+    required String title,
+    String? description,
+  });
+
   /// Create a new space
   Future<Space> createSpace({
     required String organizationId,
     required String title,
     String? description,
     SpaceVisibility? visibility,
+    String? parentCollectionId,
   });
 
   /// Update a space

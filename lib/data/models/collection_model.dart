@@ -33,3 +33,15 @@ class CollectionUrls with _$CollectionUrls {
   factory CollectionUrls.fromJson(Map<String, dynamic> json) =>
       _$CollectionUrlsFromJson(json);
 }
+
+/// Response for listing collections
+@freezed
+class CollectionsListResponse with _$CollectionsListResponse {
+  const factory CollectionsListResponse({
+    required List<CollectionModel> items,
+    String? next,
+  }) = _CollectionsListResponse;
+
+  factory CollectionsListResponse.fromJson(Map<String, dynamic> json) =>
+      _$CollectionsListResponseFromJson(json);
+}

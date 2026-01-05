@@ -499,3 +499,185 @@ abstract class _CollectionUrls implements CollectionUrls {
   _$$CollectionUrlsImplCopyWith<_$CollectionUrlsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+CollectionsListResponse _$CollectionsListResponseFromJson(
+    Map<String, dynamic> json) {
+  return _CollectionsListResponse.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CollectionsListResponse {
+  List<CollectionModel> get items => throw _privateConstructorUsedError;
+  String? get next => throw _privateConstructorUsedError;
+
+  /// Serializes this CollectionsListResponse to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CollectionsListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $CollectionsListResponseCopyWith<CollectionsListResponse> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CollectionsListResponseCopyWith<$Res> {
+  factory $CollectionsListResponseCopyWith(CollectionsListResponse value,
+          $Res Function(CollectionsListResponse) then) =
+      _$CollectionsListResponseCopyWithImpl<$Res, CollectionsListResponse>;
+  @useResult
+  $Res call({List<CollectionModel> items, String? next});
+}
+
+/// @nodoc
+class _$CollectionsListResponseCopyWithImpl<$Res,
+        $Val extends CollectionsListResponse>
+    implements $CollectionsListResponseCopyWith<$Res> {
+  _$CollectionsListResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of CollectionsListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? next = freezed,
+  }) {
+    return _then(_value.copyWith(
+      items: null == items
+          ? _value.items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<CollectionModel>,
+      next: freezed == next
+          ? _value.next
+          : next // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$CollectionsListResponseImplCopyWith<$Res>
+    implements $CollectionsListResponseCopyWith<$Res> {
+  factory _$$CollectionsListResponseImplCopyWith(
+          _$CollectionsListResponseImpl value,
+          $Res Function(_$CollectionsListResponseImpl) then) =
+      __$$CollectionsListResponseImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({List<CollectionModel> items, String? next});
+}
+
+/// @nodoc
+class __$$CollectionsListResponseImplCopyWithImpl<$Res>
+    extends _$CollectionsListResponseCopyWithImpl<$Res,
+        _$CollectionsListResponseImpl>
+    implements _$$CollectionsListResponseImplCopyWith<$Res> {
+  __$$CollectionsListResponseImplCopyWithImpl(
+      _$CollectionsListResponseImpl _value,
+      $Res Function(_$CollectionsListResponseImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of CollectionsListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? next = freezed,
+  }) {
+    return _then(_$CollectionsListResponseImpl(
+      items: null == items
+          ? _value._items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<CollectionModel>,
+      next: freezed == next
+          ? _value.next
+          : next // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CollectionsListResponseImpl implements _CollectionsListResponse {
+  const _$CollectionsListResponseImpl(
+      {required final List<CollectionModel> items, this.next})
+      : _items = items;
+
+  factory _$CollectionsListResponseImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CollectionsListResponseImplFromJson(json);
+
+  final List<CollectionModel> _items;
+  @override
+  List<CollectionModel> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  final String? next;
+
+  @override
+  String toString() {
+    return 'CollectionsListResponse(items: $items, next: $next)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CollectionsListResponseImpl &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.next, next) || other.next == next));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, const DeepCollectionEquality().hash(_items), next);
+
+  /// Create a copy of CollectionsListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CollectionsListResponseImplCopyWith<_$CollectionsListResponseImpl>
+      get copyWith => __$$CollectionsListResponseImplCopyWithImpl<
+          _$CollectionsListResponseImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CollectionsListResponseImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _CollectionsListResponse implements CollectionsListResponse {
+  const factory _CollectionsListResponse(
+      {required final List<CollectionModel> items,
+      final String? next}) = _$CollectionsListResponseImpl;
+
+  factory _CollectionsListResponse.fromJson(Map<String, dynamic> json) =
+      _$CollectionsListResponseImpl.fromJson;
+
+  @override
+  List<CollectionModel> get items;
+  @override
+  String? get next;
+
+  /// Create a copy of CollectionsListResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CollectionsListResponseImplCopyWith<_$CollectionsListResponseImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}

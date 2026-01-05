@@ -9,6 +9,7 @@ import 'user_provider.dart';
 class SpacesState {
   final List<Space> spaces;
   final Map<String, SpaceCollection> collections;
+  final List<SpaceCollection> allCollections;
   final bool isLoading;
   final String? error;
   final SpaceViewMode viewMode;
@@ -18,6 +19,7 @@ class SpacesState {
   const SpacesState({
     this.spaces = const [],
     this.collections = const {},
+    this.allCollections = const [],
     this.isLoading = false,
     this.error,
     this.viewMode = SpaceViewMode.list,
@@ -28,6 +30,7 @@ class SpacesState {
   SpacesState copyWith({
     List<Space>? spaces,
     Map<String, SpaceCollection>? collections,
+    List<SpaceCollection>? allCollections,
     bool? isLoading,
     String? error,
     SpaceViewMode? viewMode,
@@ -37,6 +40,7 @@ class SpacesState {
     return SpacesState(
       spaces: spaces ?? this.spaces,
       collections: collections ?? this.collections,
+      allCollections: allCollections ?? this.allCollections,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       viewMode: viewMode ?? this.viewMode,
@@ -77,20 +81,36 @@ class SpacesState {
   List<HierarchicalSpaceItem> get hierarchicalItems {
     final items = <HierarchicalSpaceItem>[];
 
-    // Add root spaces first
+    // Add root spaces first (spaces not in any collection)
     for (final space in rootSpaces) {
       items.add(HierarchicalSpaceItem.space(space));
     }
 
-    // Add collections with their spaces
+    // Add all collections (including empty ones)
+    final addedCollectionIds = <String>{};
+
+    // First add collections from allCollections list
+    for (final collection in allCollections) {
+      final collectionSpaces = spacesInCollection(collection.id);
+      items.add(HierarchicalSpaceItem.collection(
+        collection,
+        collectionSpaces,
+      ));
+      addedCollectionIds.add(collection.id);
+    }
+
+    // Then add any collections we have in the collections map but not in allCollections
+    // (in case allCollections hasn't been loaded yet)
     for (final collectionId in collectionIds) {
-      final collection = collections[collectionId];
-      if (collection != null) {
-        final collectionSpaces = spacesInCollection(collectionId);
-        items.add(HierarchicalSpaceItem.collection(
-          collection,
-          collectionSpaces,
-        ));
+      if (!addedCollectionIds.contains(collectionId)) {
+        final collection = collections[collectionId];
+        if (collection != null) {
+          final collectionSpaces = spacesInCollection(collectionId);
+          items.add(HierarchicalSpaceItem.collection(
+            collection,
+            collectionSpaces,
+          ));
+        }
       }
     }
 
@@ -169,8 +189,9 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
       );
       state = state.copyWith(spaces: spaces, isLoading: false);
 
-      // If in hierarchical mode, load collections
+      // If in hierarchical mode, load all collections
       if (state.displayMode == SpaceDisplayMode.hierarchical) {
+        await loadAllCollections();
         await _loadCollections();
       }
     } catch (e) {
@@ -213,8 +234,13 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
   /// Set display mode (flat/hierarchical)
   Future<void> setDisplayMode(SpaceDisplayMode mode) async {
     state = state.copyWith(displayMode: mode);
-    if (mode == SpaceDisplayMode.hierarchical && state.collections.isEmpty) {
-      await _loadCollections();
+    if (mode == SpaceDisplayMode.hierarchical) {
+      if (state.allCollections.isEmpty) {
+        await loadAllCollections();
+      }
+      if (state.collections.isEmpty) {
+        await _loadCollections();
+      }
     }
   }
 
@@ -248,11 +274,54 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
     }
   }
 
+  /// Load all collections for the current organization
+  Future<void> loadAllCollections() async {
+    final orgState = _ref.read(organizationsProvider);
+    final currentOrg = orgState.currentOrganization;
+    if (currentOrg == null) return;
+
+    try {
+      final collections = await _repository.getCollections(currentOrg.id);
+      state = state.copyWith(allCollections: collections);
+    } catch (e) {
+      // Silently ignore collection fetch errors
+    }
+  }
+
+  /// Create a new collection
+  Future<SpaceCollection?> createCollection({
+    required String title,
+    String? description,
+  }) async {
+    final orgState = _ref.read(organizationsProvider);
+    final currentOrg = orgState.currentOrganization;
+    if (currentOrg == null) {
+      state = state.copyWith(error: 'No organization selected');
+      return null;
+    }
+
+    try {
+      final collection = await _repository.createCollection(
+        organizationId: currentOrg.id,
+        title: title,
+        description: description,
+      );
+      state = state.copyWith(
+        allCollections: [...state.allCollections, collection],
+      );
+      return collection;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return null;
+    }
+  }
+
   /// Create a new space
   Future<Space?> createSpace({
     required String title,
     String? description,
     SpaceVisibility? visibility,
+    String? parentCollectionId,
   }) async {
     final orgState = _ref.read(organizationsProvider);
     final currentOrg = orgState.currentOrganization;
@@ -267,6 +336,7 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
         title: title,
         description: description,
         visibility: visibility,
+        parentCollectionId: parentCollectionId,
       );
       state = state.copyWith(spaces: [...state.spaces, space]);
       return space;

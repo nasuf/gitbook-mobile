@@ -50,3 +50,19 @@ Map<String, dynamic> _$$CollectionUrlsImplToJson(
       'location': instance.location,
       'app': instance.app,
     };
+
+_$CollectionsListResponseImpl _$$CollectionsListResponseImplFromJson(
+        Map<String, dynamic> json) =>
+    _$CollectionsListResponseImpl(
+      items: (json['items'] as List<dynamic>)
+          .map((e) => CollectionModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      next: json['next'] as String?,
+    );
+
+Map<String, dynamic> _$$CollectionsListResponseImplToJson(
+        _$CollectionsListResponseImpl instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+      'next': instance.next,
+    };

@@ -25,6 +25,7 @@ class ApiConstants {
   static String orgSpaces(String orgId) => '/orgs/$orgId/spaces';
 
   // Collections endpoints
+  static String orgCollections(String orgId) => '/orgs/$orgId/collections';
   static String collection(String collectionId) => '/collections/$collectionId';
   static String collectionSpaces(String collectionId) =>
       '/collections/$collectionId/spaces';

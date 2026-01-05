@@ -64,17 +64,39 @@ class SpaceRepositoryImpl implements SpaceRepository {
   }
 
   @override
+  Future<List<SpaceCollection>> getCollections(String organizationId) async {
+    final response = await _apiClient.listCollections(organizationId);
+    return response.items.map(_mapToCollection).toList();
+  }
+
+  @override
+  Future<SpaceCollection> createCollection({
+    required String organizationId,
+    required String title,
+    String? description,
+  }) async {
+    final collection = await _apiClient.createCollection(
+      organizationId,
+      title: title,
+      description: description,
+    );
+    return _mapToCollection(collection);
+  }
+
+  @override
   Future<Space> createSpace({
     required String organizationId,
     required String title,
     String? description,
     SpaceVisibility? visibility,
+    String? parentCollectionId,
   }) async {
     final space = await _apiClient.createSpace(
       organizationId,
       title: title,
       description: description,
       visibility: _mapToModelVisibility(visibility),
+      parentCollectionId: parentCollectionId,
     );
 
     // Cache the new space

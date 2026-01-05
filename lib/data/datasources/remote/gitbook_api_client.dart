@@ -86,10 +86,42 @@ class GitBookApiClient {
 
   // ============ Collections ============
 
+  /// List collections in an organization
+  Future<CollectionsListResponse> listCollections(
+    String orgId, {
+    int? limit,
+    String? page,
+  }) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.orgCollections(orgId),
+      queryParameters: {
+        if (limit != null) 'limit': limit,
+        if (page != null) 'page': page,
+      },
+    );
+    return CollectionsListResponse.fromJson(response.data!);
+  }
+
   /// Get collection by ID
   Future<CollectionModel> getCollection(String collectionId) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.collection(collectionId),
+    );
+    return CollectionModel.fromJson(response.data!);
+  }
+
+  /// Create a new collection
+  Future<CollectionModel> createCollection(
+    String orgId, {
+    required String title,
+    String? description,
+  }) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      ApiConstants.orgCollections(orgId),
+      data: {
+        'title': title,
+        if (description != null) 'description': description,
+      },
     );
     return CollectionModel.fromJson(response.data!);
   }
@@ -126,6 +158,7 @@ class GitBookApiClient {
     required String title,
     String? description,
     SpaceVisibility? visibility,
+    String? parentCollectionId,
   }) async {
     final response = await _client.post<Map<String, dynamic>>(
       ApiConstants.orgSpaces(orgId),
@@ -133,6 +166,7 @@ class GitBookApiClient {
         'title': title,
         if (description != null) 'description': description,
         if (visibility != null) 'visibility': visibility.name,
+        if (parentCollectionId != null) 'parent': parentCollectionId,
       },
     );
     return SpaceModel.fromJson(response.data!);
