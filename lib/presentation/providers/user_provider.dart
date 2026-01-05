@@ -146,10 +146,10 @@ class OrganizationsNotifier extends StateNotifier<OrganizationsState> {
     _loadOrganizations();
   }
 
-  Future<void> _loadOrganizations() async {
+  Future<void> _loadOrganizations({bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true);
     try {
-      final organizations = await _repository.getOrganizations();
+      final organizations = await _repository.getOrganizations(forceRefresh: forceRefresh);
       final currentOrg = await _repository.getCurrentOrganization();
       state = OrganizationsState(
         organizations: organizations,
@@ -159,6 +159,9 @@ class OrganizationsNotifier extends StateNotifier<OrganizationsState> {
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
+
+  /// Load organizations
+  Future<void> loadOrganizations() => _loadOrganizations();
 
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true);

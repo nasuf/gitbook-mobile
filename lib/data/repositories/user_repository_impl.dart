@@ -43,7 +43,7 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<User?> getCachedUser() async {
-    final cached = await _hiveStorage.getCachedJson(_cachedUserKey);
+    final cached = _hiveStorage.getCachedJson(_cachedUserKey);
     if (cached == null) return null;
 
     return User(
@@ -56,7 +56,7 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<UserSettings> getUserSettings() async {
-    final cached = await _hiveStorage.getCachedJson(_userSettingsKey);
+    final cached = _hiveStorage.getCachedJson(_userSettingsKey);
     if (cached == null) return const UserSettings();
 
     return UserSettings(

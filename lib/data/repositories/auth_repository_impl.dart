@@ -13,7 +13,6 @@ class AuthRepositoryImpl implements AuthRepository {
   final SecureTokenStorage _tokenStorage;
 
   final _authStateController = StreamController<AuthState>.broadcast();
-  AuthState _currentState = const AuthState();
 
   AuthRepositoryImpl({
     required GitBookApiClient apiClient,
@@ -25,7 +24,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<AuthState> get authStateChanges => _authStateController.stream;
 
   void _updateState(AuthState state) {
-    _currentState = state;
     _authStateController.add(state);
   }
 

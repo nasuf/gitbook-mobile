@@ -161,7 +161,7 @@ class OrganizationSwitcherBottomSheet extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

@@ -42,10 +42,9 @@ void main() {
           requestOptions: RequestOptions(path: '/test'),
         );
 
-        var wasRetried = false;
         final handler = MockErrorInterceptorHandler(
           onNext: (_) {},
-          onResolve: (_) => wasRetried = true,
+          onResolve: (_) {},
         );
 
         await interceptor.onError(error, handler);

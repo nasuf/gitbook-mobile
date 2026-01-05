@@ -182,7 +182,6 @@ class CacheManager {
   Future<CacheStats> getStats() async {
     final orgs = await _database.getAllOrganizations();
     final spaces = await _database.getAllSpaces();
-    final contents = await _database.getContentBySpace(''); // This won't work, need to fix
     final recentItems = await _database.getRecentItems();
     final pendingSync = await _database.getPendingSyncItems();
 
@@ -235,8 +234,6 @@ class CacheManager {
 
   /// Mark sync operation as failed
   Future<void> markSyncFailed(int id, String errorMessage) async {
-    final item = await _database.getSyncItemsByEntity('', '');
-    // Would need to get the specific item first
     await _database.updateSyncItem(
       id,
       SyncQueueCompanion(

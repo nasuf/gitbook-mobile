@@ -1,14 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/dio_client.dart';
+import '../../core/storage/cache_manager.dart';
 import '../../core/storage/hive_storage.dart';
 import '../../core/storage/secure_token_storage.dart';
 import '../../data/datasources/local/content_local_datasource.dart';
 import '../../data/datasources/local/database/app_database.dart';
 import '../../data/datasources/remote/gitbook_api_client.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/repositories/space_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/space_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 
 /// Provider for SecureTokenStorage
@@ -68,5 +71,27 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
     apiClient: apiClient,
     localDataSource: localDataSource,
     hiveStorage: hiveStorage,
+  );
+});
+
+/// Provider for CacheManager
+final cacheManagerProvider = Provider<CacheManager>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  final hiveStorage = ref.watch(hiveStorageProvider);
+  return CacheManager(
+    database: database,
+    hiveStorage: hiveStorage,
+  );
+});
+
+/// Provider for SpaceRepository
+final spaceRepositoryProvider = Provider<SpaceRepository>((ref) {
+  final apiClient = ref.watch(gitBookApiClientProvider);
+  final localDataSource = ref.watch(contentLocalDataSourceProvider);
+  final cacheManager = ref.watch(cacheManagerProvider);
+  return SpaceRepositoryImpl(
+    apiClient: apiClient,
+    localDataSource: localDataSource,
+    cacheManager: cacheManager,
   );
 });

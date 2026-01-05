@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/app_config.dart';
-import '../../../domain/entities/auth_entity.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/loading_button.dart';
 
