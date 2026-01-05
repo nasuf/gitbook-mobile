@@ -114,19 +114,19 @@ lib/
 ### Phase 2: Authentication & User Management
 
 #### 2.1 Authentication Flow
-- [ ] Implement login screen UI
-- [ ] OAuth 2.0 web view integration
-- [ ] API token input option
-- [ ] Token storage (secure storage)
-- [ ] Auto token refresh mechanism
-- [ ] Logout functionality
-- [ ] Session expiry handling
+- [x] Implement login screen UI
+- [x] OAuth 2.0 web view integration
+- [x] API token input option
+- [x] Token storage (secure storage)
+- [x] Auto token refresh mechanism
+- [x] Logout functionality
+- [x] Session expiry handling
 
 #### 2.2 User Profile
-- [ ] Fetch current user info
-- [ ] Display user profile screen
-- [ ] Organization switcher
-- [ ] Account settings
+- [x] Fetch current user info
+- [x] Display user profile screen
+- [x] Organization switcher
+- [x] Account settings
 
 ---
 
@@ -474,8 +474,10 @@ Base URL: `https://api.gitbook.com/v1`
 - [x] Data model tests (serialization/deserialization)
 - [x] Secure storage tests
 - [x] Local storage tests (Hive, Drift database, cache manager, local datasource)
+- [x] Auth repository tests
+- [x] Auth and user use case tests
+- [x] Auth and user provider tests
 - [ ] Repository tests
-- [ ] Use case tests
 - [ ] Provider tests
 
 ### Widget Tests
