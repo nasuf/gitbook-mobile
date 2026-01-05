@@ -19,12 +19,16 @@ mixin _$Space {
   String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  String? get emoji => throw _privateConstructorUsedError;
   SpaceVisibility? get visibility => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   String? get organizationId => throw _privateConstructorUsedError;
   String? get appUrl => throw _privateConstructorUsedError;
   String? get publishedUrl => throw _privateConstructorUsedError;
+
+  /// ID of the parent collection (if the space belongs to a collection)
+  String? get parentId => throw _privateConstructorUsedError;
 
   /// Create a copy of Space
   /// with the given fields replaced by the non-null parameter values.
@@ -41,12 +45,14 @@ abstract class $SpaceCopyWith<$Res> {
       {String id,
       String title,
       String? description,
+      String? emoji,
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
       String? organizationId,
       String? appUrl,
-      String? publishedUrl});
+      String? publishedUrl,
+      String? parentId});
 }
 
 /// @nodoc
@@ -67,12 +73,14 @@ class _$SpaceCopyWithImpl<$Res, $Val extends Space>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? emoji = freezed,
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? organizationId = freezed,
     Object? appUrl = freezed,
     Object? publishedUrl = freezed,
+    Object? parentId = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -86,6 +94,10 @@ class _$SpaceCopyWithImpl<$Res, $Val extends Space>
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
               as String?,
       visibility: freezed == visibility
           ? _value.visibility
@@ -111,6 +123,10 @@ class _$SpaceCopyWithImpl<$Res, $Val extends Space>
           ? _value.publishedUrl
           : publishedUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      parentId: freezed == parentId
+          ? _value.parentId
+          : parentId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -126,12 +142,14 @@ abstract class _$$SpaceImplCopyWith<$Res> implements $SpaceCopyWith<$Res> {
       {String id,
       String title,
       String? description,
+      String? emoji,
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
       String? organizationId,
       String? appUrl,
-      String? publishedUrl});
+      String? publishedUrl,
+      String? parentId});
 }
 
 /// @nodoc
@@ -150,12 +168,14 @@ class __$$SpaceImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? emoji = freezed,
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? organizationId = freezed,
     Object? appUrl = freezed,
     Object? publishedUrl = freezed,
+    Object? parentId = freezed,
   }) {
     return _then(_$SpaceImpl(
       id: null == id
@@ -169,6 +189,10 @@ class __$$SpaceImplCopyWithImpl<$Res>
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
               as String?,
       visibility: freezed == visibility
           ? _value.visibility
@@ -194,6 +218,10 @@ class __$$SpaceImplCopyWithImpl<$Res>
           ? _value.publishedUrl
           : publishedUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      parentId: freezed == parentId
+          ? _value.parentId
+          : parentId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -205,12 +233,14 @@ class _$SpaceImpl extends _Space {
       {required this.id,
       required this.title,
       this.description,
+      this.emoji,
       this.visibility,
       this.createdAt,
       this.updatedAt,
       this.organizationId,
       this.appUrl,
-      this.publishedUrl})
+      this.publishedUrl,
+      this.parentId})
       : super._();
 
   @override
@@ -219,6 +249,8 @@ class _$SpaceImpl extends _Space {
   final String title;
   @override
   final String? description;
+  @override
+  final String? emoji;
   @override
   final SpaceVisibility? visibility;
   @override
@@ -232,9 +264,13 @@ class _$SpaceImpl extends _Space {
   @override
   final String? publishedUrl;
 
+  /// ID of the parent collection (if the space belongs to a collection)
+  @override
+  final String? parentId;
+
   @override
   String toString() {
-    return 'Space(id: $id, title: $title, description: $description, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, organizationId: $organizationId, appUrl: $appUrl, publishedUrl: $publishedUrl)';
+    return 'Space(id: $id, title: $title, description: $description, emoji: $emoji, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, organizationId: $organizationId, appUrl: $appUrl, publishedUrl: $publishedUrl, parentId: $parentId)';
   }
 
   @override
@@ -246,6 +282,7 @@ class _$SpaceImpl extends _Space {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.emoji, emoji) || other.emoji == emoji) &&
             (identical(other.visibility, visibility) ||
                 other.visibility == visibility) &&
             (identical(other.createdAt, createdAt) ||
@@ -256,12 +293,25 @@ class _$SpaceImpl extends _Space {
                 other.organizationId == organizationId) &&
             (identical(other.appUrl, appUrl) || other.appUrl == appUrl) &&
             (identical(other.publishedUrl, publishedUrl) ||
-                other.publishedUrl == publishedUrl));
+                other.publishedUrl == publishedUrl) &&
+            (identical(other.parentId, parentId) ||
+                other.parentId == parentId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description,
-      visibility, createdAt, updatedAt, organizationId, appUrl, publishedUrl);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      emoji,
+      visibility,
+      createdAt,
+      updatedAt,
+      organizationId,
+      appUrl,
+      publishedUrl,
+      parentId);
 
   /// Create a copy of Space
   /// with the given fields replaced by the non-null parameter values.
@@ -277,12 +327,14 @@ abstract class _Space extends Space {
       {required final String id,
       required final String title,
       final String? description,
+      final String? emoji,
       final SpaceVisibility? visibility,
       final DateTime? createdAt,
       final DateTime? updatedAt,
       final String? organizationId,
       final String? appUrl,
-      final String? publishedUrl}) = _$SpaceImpl;
+      final String? publishedUrl,
+      final String? parentId}) = _$SpaceImpl;
   const _Space._() : super._();
 
   @override
@@ -291,6 +343,8 @@ abstract class _Space extends Space {
   String get title;
   @override
   String? get description;
+  @override
+  String? get emoji;
   @override
   SpaceVisibility? get visibility;
   @override
@@ -304,12 +358,451 @@ abstract class _Space extends Space {
   @override
   String? get publishedUrl;
 
+  /// ID of the parent collection (if the space belongs to a collection)
+  @override
+  String? get parentId;
+
   /// Create a copy of Space
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$SpaceImplCopyWith<_$SpaceImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$SpaceCollection {
+  String get id => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
+  String? get emoji => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  String? get organizationId => throw _privateConstructorUsedError;
+
+  /// Create a copy of SpaceCollection
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SpaceCollectionCopyWith<SpaceCollection> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SpaceCollectionCopyWith<$Res> {
+  factory $SpaceCollectionCopyWith(
+          SpaceCollection value, $Res Function(SpaceCollection) then) =
+      _$SpaceCollectionCopyWithImpl<$Res, SpaceCollection>;
+  @useResult
+  $Res call(
+      {String id,
+      String title,
+      String? description,
+      String? emoji,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      String? organizationId});
+}
+
+/// @nodoc
+class _$SpaceCollectionCopyWithImpl<$Res, $Val extends SpaceCollection>
+    implements $SpaceCollectionCopyWith<$Res> {
+  _$SpaceCollectionCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SpaceCollection
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = freezed,
+    Object? emoji = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? organizationId = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      organizationId: freezed == organizationId
+          ? _value.organizationId
+          : organizationId // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SpaceCollectionImplCopyWith<$Res>
+    implements $SpaceCollectionCopyWith<$Res> {
+  factory _$$SpaceCollectionImplCopyWith(_$SpaceCollectionImpl value,
+          $Res Function(_$SpaceCollectionImpl) then) =
+      __$$SpaceCollectionImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      String title,
+      String? description,
+      String? emoji,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      String? organizationId});
+}
+
+/// @nodoc
+class __$$SpaceCollectionImplCopyWithImpl<$Res>
+    extends _$SpaceCollectionCopyWithImpl<$Res, _$SpaceCollectionImpl>
+    implements _$$SpaceCollectionImplCopyWith<$Res> {
+  __$$SpaceCollectionImplCopyWithImpl(
+      _$SpaceCollectionImpl _value, $Res Function(_$SpaceCollectionImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of SpaceCollection
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = freezed,
+    Object? emoji = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? organizationId = freezed,
+  }) {
+    return _then(_$SpaceCollectionImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      organizationId: freezed == organizationId
+          ? _value.organizationId
+          : organizationId // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$SpaceCollectionImpl extends _SpaceCollection {
+  const _$SpaceCollectionImpl(
+      {required this.id,
+      required this.title,
+      this.description,
+      this.emoji,
+      this.createdAt,
+      this.updatedAt,
+      this.organizationId})
+      : super._();
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? description;
+  @override
+  final String? emoji;
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
+  @override
+  final String? organizationId;
+
+  @override
+  String toString() {
+    return 'SpaceCollection(id: $id, title: $title, description: $description, emoji: $emoji, createdAt: $createdAt, updatedAt: $updatedAt, organizationId: $organizationId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SpaceCollectionImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.emoji, emoji) || other.emoji == emoji) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.organizationId, organizationId) ||
+                other.organizationId == organizationId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, id, title, description, emoji,
+      createdAt, updatedAt, organizationId);
+
+  /// Create a copy of SpaceCollection
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SpaceCollectionImplCopyWith<_$SpaceCollectionImpl> get copyWith =>
+      __$$SpaceCollectionImplCopyWithImpl<_$SpaceCollectionImpl>(
+          this, _$identity);
+}
+
+abstract class _SpaceCollection extends SpaceCollection {
+  const factory _SpaceCollection(
+      {required final String id,
+      required final String title,
+      final String? description,
+      final String? emoji,
+      final DateTime? createdAt,
+      final DateTime? updatedAt,
+      final String? organizationId}) = _$SpaceCollectionImpl;
+  const _SpaceCollection._() : super._();
+
+  @override
+  String get id;
+  @override
+  String get title;
+  @override
+  String? get description;
+  @override
+  String? get emoji;
+  @override
+  DateTime? get createdAt;
+  @override
+  DateTime? get updatedAt;
+  @override
+  String? get organizationId;
+
+  /// Create a copy of SpaceCollection
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SpaceCollectionImplCopyWith<_$SpaceCollectionImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$CollectionWithSpaces {
+  SpaceCollection get collection => throw _privateConstructorUsedError;
+  List<Space> get spaces => throw _privateConstructorUsedError;
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $CollectionWithSpacesCopyWith<CollectionWithSpaces> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CollectionWithSpacesCopyWith<$Res> {
+  factory $CollectionWithSpacesCopyWith(CollectionWithSpaces value,
+          $Res Function(CollectionWithSpaces) then) =
+      _$CollectionWithSpacesCopyWithImpl<$Res, CollectionWithSpaces>;
+  @useResult
+  $Res call({SpaceCollection collection, List<Space> spaces});
+
+  $SpaceCollectionCopyWith<$Res> get collection;
+}
+
+/// @nodoc
+class _$CollectionWithSpacesCopyWithImpl<$Res,
+        $Val extends CollectionWithSpaces>
+    implements $CollectionWithSpacesCopyWith<$Res> {
+  _$CollectionWithSpacesCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? collection = null,
+    Object? spaces = null,
+  }) {
+    return _then(_value.copyWith(
+      collection: null == collection
+          ? _value.collection
+          : collection // ignore: cast_nullable_to_non_nullable
+              as SpaceCollection,
+      spaces: null == spaces
+          ? _value.spaces
+          : spaces // ignore: cast_nullable_to_non_nullable
+              as List<Space>,
+    ) as $Val);
+  }
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $SpaceCollectionCopyWith<$Res> get collection {
+    return $SpaceCollectionCopyWith<$Res>(_value.collection, (value) {
+      return _then(_value.copyWith(collection: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$CollectionWithSpacesImplCopyWith<$Res>
+    implements $CollectionWithSpacesCopyWith<$Res> {
+  factory _$$CollectionWithSpacesImplCopyWith(_$CollectionWithSpacesImpl value,
+          $Res Function(_$CollectionWithSpacesImpl) then) =
+      __$$CollectionWithSpacesImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({SpaceCollection collection, List<Space> spaces});
+
+  @override
+  $SpaceCollectionCopyWith<$Res> get collection;
+}
+
+/// @nodoc
+class __$$CollectionWithSpacesImplCopyWithImpl<$Res>
+    extends _$CollectionWithSpacesCopyWithImpl<$Res, _$CollectionWithSpacesImpl>
+    implements _$$CollectionWithSpacesImplCopyWith<$Res> {
+  __$$CollectionWithSpacesImplCopyWithImpl(_$CollectionWithSpacesImpl _value,
+      $Res Function(_$CollectionWithSpacesImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? collection = null,
+    Object? spaces = null,
+  }) {
+    return _then(_$CollectionWithSpacesImpl(
+      collection: null == collection
+          ? _value.collection
+          : collection // ignore: cast_nullable_to_non_nullable
+              as SpaceCollection,
+      spaces: null == spaces
+          ? _value._spaces
+          : spaces // ignore: cast_nullable_to_non_nullable
+              as List<Space>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$CollectionWithSpacesImpl extends _CollectionWithSpaces {
+  const _$CollectionWithSpacesImpl(
+      {required this.collection, required final List<Space> spaces})
+      : _spaces = spaces,
+        super._();
+
+  @override
+  final SpaceCollection collection;
+  final List<Space> _spaces;
+  @override
+  List<Space> get spaces {
+    if (_spaces is EqualUnmodifiableListView) return _spaces;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_spaces);
+  }
+
+  @override
+  String toString() {
+    return 'CollectionWithSpaces(collection: $collection, spaces: $spaces)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CollectionWithSpacesImpl &&
+            (identical(other.collection, collection) ||
+                other.collection == collection) &&
+            const DeepCollectionEquality().equals(other._spaces, _spaces));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, collection, const DeepCollectionEquality().hash(_spaces));
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CollectionWithSpacesImplCopyWith<_$CollectionWithSpacesImpl>
+      get copyWith =>
+          __$$CollectionWithSpacesImplCopyWithImpl<_$CollectionWithSpacesImpl>(
+              this, _$identity);
+}
+
+abstract class _CollectionWithSpaces extends CollectionWithSpaces {
+  const factory _CollectionWithSpaces(
+      {required final SpaceCollection collection,
+      required final List<Space> spaces}) = _$CollectionWithSpacesImpl;
+  const _CollectionWithSpaces._() : super._();
+
+  @override
+  SpaceCollection get collection;
+  @override
+  List<Space> get spaces;
+
+  /// Create a copy of CollectionWithSpaces
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CollectionWithSpacesImplCopyWith<_$CollectionWithSpacesImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc

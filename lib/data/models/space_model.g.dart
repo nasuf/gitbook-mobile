@@ -11,6 +11,7 @@ _$SpaceModelImpl _$$SpaceModelImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
+      emoji: json['emoji'] as String?,
       visibility:
           $enumDecodeNullable(_$SpaceVisibilityEnumMap, json['visibility']),
       createdAt: json['createdAt'] == null
@@ -26,6 +27,7 @@ _$SpaceModelImpl _$$SpaceModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : SpaceUrls.fromJson(json['urls'] as Map<String, dynamic>),
       organizationId: json['organizationId'] as String?,
+      parent: json['parent'] as String?,
     );
 
 Map<String, dynamic> _$$SpaceModelImplToJson(_$SpaceModelImpl instance) =>
@@ -33,12 +35,14 @@ Map<String, dynamic> _$$SpaceModelImplToJson(_$SpaceModelImpl instance) =>
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
+      'emoji': instance.emoji,
       'visibility': _$SpaceVisibilityEnumMap[instance.visibility],
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'deletedAt': instance.deletedAt?.toIso8601String(),
       'urls': instance.urls,
       'organizationId': instance.organizationId,
+      'parent': instance.parent,
     };
 
 const _$SpaceVisibilityEnumMap = {

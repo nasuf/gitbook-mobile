@@ -84,6 +84,16 @@ class GitBookApiClient {
     return OrganizationMembersResponse.fromJson(response.data!);
   }
 
+  // ============ Collections ============
+
+  /// Get collection by ID
+  Future<CollectionModel> getCollection(String collectionId) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.collection(collectionId),
+    );
+    return CollectionModel.fromJson(response.data!);
+  }
+
   // ============ Spaces ============
 
   /// List spaces in an organization

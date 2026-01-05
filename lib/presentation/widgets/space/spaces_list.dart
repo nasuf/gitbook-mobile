@@ -3,6 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/space_entity.dart';
 import '../../providers/space_provider.dart';
 
+/// Convert emoji code point string to actual emoji character
+String? _convertEmojiCode(String? emojiCode) {
+  if (emojiCode == null || emojiCode.isEmpty) return null;
+  try {
+    // Handle emoji code like "1f4d9" -> actual emoji
+    final codePoint = int.parse(emojiCode, radix: 16);
+    return String.fromCharCode(codePoint);
+  } catch (e) {
+    // If it's already an emoji or invalid, return as-is
+    return emojiCode;
+  }
+}
+
 /// List or grid of spaces
 class SpacesList extends StatelessWidget {
   final List<Space> spaces;
@@ -82,9 +95,16 @@ class _SpaceListTile extends StatelessWidget {
           color: theme.colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          Icons.folder,
-          color: theme.colorScheme.onPrimaryContainer,
+        child: Center(
+          child: _convertEmojiCode(space.emoji) != null
+              ? Text(
+                  _convertEmojiCode(space.emoji)!,
+                  style: const TextStyle(fontSize: 22),
+                )
+              : Icon(
+                  Icons.description_outlined,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
         ),
       ),
       title: Text(
@@ -206,11 +226,16 @@ class _SpaceGridTile extends StatelessWidget {
                       color: theme.colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      Icons.folder,
-                      color: theme.colorScheme.onPrimaryContainer,
-                      size: 20,
-                    ),
+                    child: _convertEmojiCode(space.emoji) != null
+                        ? Text(
+                            _convertEmojiCode(space.emoji)!,
+                            style: const TextStyle(fontSize: 18),
+                          )
+                        : Icon(
+                            Icons.description_outlined,
+                            color: theme.colorScheme.onPrimaryContainer,
+                            size: 20,
+                          ),
                   ),
                   if (space.visibility != null)
                     Icon(

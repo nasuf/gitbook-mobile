@@ -19,12 +19,15 @@ class Space with _$Space {
     required String id,
     required String title,
     String? description,
+    String? emoji,
     SpaceVisibility? visibility,
     DateTime? createdAt,
     DateTime? updatedAt,
     String? organizationId,
     String? appUrl,
     String? publishedUrl,
+    /// ID of the parent collection (if the space belongs to a collection)
+    String? parentId,
   }) = _Space;
 
   const Space._();
@@ -34,6 +37,36 @@ class Space with _$Space {
 
   /// Check if space is private
   bool get isPrivate => visibility == SpaceVisibility.private;
+
+  /// Check if space belongs to a collection
+  bool get isInCollection => parentId != null;
+}
+
+/// Collection entity for domain layer
+@freezed
+class SpaceCollection with _$SpaceCollection {
+  const factory SpaceCollection({
+    required String id,
+    required String title,
+    String? description,
+    String? emoji,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? organizationId,
+  }) = _SpaceCollection;
+
+  const SpaceCollection._();
+}
+
+/// A collection with its spaces
+@freezed
+class CollectionWithSpaces with _$CollectionWithSpaces {
+  const factory CollectionWithSpaces({
+    required SpaceCollection collection,
+    required List<Space> spaces,
+  }) = _CollectionWithSpaces;
+
+  const CollectionWithSpaces._();
 }
 
 /// Recent space item for quick access

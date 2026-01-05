@@ -60,7 +60,7 @@ class _RecentSpaceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                Icons.folder_outlined,
+                Icons.description_outlined,
                 color: theme.colorScheme.primary,
               ),
               const SizedBox(height: 8),

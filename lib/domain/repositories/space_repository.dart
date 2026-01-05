@@ -11,6 +11,9 @@ abstract class SpaceRepository {
   /// Get a single space by ID
   Future<Space> getSpaceById(String spaceId);
 
+  /// Get a collection by ID
+  Future<SpaceCollection> getCollectionById(String collectionId);
+
   /// Create a new space
   Future<Space> createSpace({
     required String organizationId,

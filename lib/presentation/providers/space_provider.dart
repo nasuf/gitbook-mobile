@@ -8,31 +8,39 @@ import 'user_provider.dart';
 /// State for spaces list
 class SpacesState {
   final List<Space> spaces;
+  final Map<String, SpaceCollection> collections;
   final bool isLoading;
   final String? error;
   final SpaceViewMode viewMode;
+  final SpaceDisplayMode displayMode;
   final String searchQuery;
 
   const SpacesState({
     this.spaces = const [],
+    this.collections = const {},
     this.isLoading = false,
     this.error,
     this.viewMode = SpaceViewMode.list,
+    this.displayMode = SpaceDisplayMode.flat,
     this.searchQuery = '',
   });
 
   SpacesState copyWith({
     List<Space>? spaces,
+    Map<String, SpaceCollection>? collections,
     bool? isLoading,
     String? error,
     SpaceViewMode? viewMode,
+    SpaceDisplayMode? displayMode,
     String? searchQuery,
   }) {
     return SpacesState(
       spaces: spaces ?? this.spaces,
+      collections: collections ?? this.collections,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       viewMode: viewMode ?? this.viewMode,
+      displayMode: displayMode ?? this.displayMode,
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -46,10 +54,91 @@ class SpacesState {
           (space.description?.toLowerCase().contains(query) ?? false);
     }).toList();
   }
+
+  /// Get spaces at root level (not in a collection)
+  List<Space> get rootSpaces {
+    return filteredSpaces.where((space) => space.parentId == null).toList();
+  }
+
+  /// Get spaces in a specific collection
+  List<Space> spacesInCollection(String collectionId) {
+    return filteredSpaces.where((space) => space.parentId == collectionId).toList();
+  }
+
+  /// Get collection IDs that have spaces
+  Set<String> get collectionIds {
+    return filteredSpaces
+        .where((space) => space.parentId != null)
+        .map((space) => space.parentId!)
+        .toSet();
+  }
+
+  /// Get hierarchical view data (collections with their spaces)
+  List<HierarchicalSpaceItem> get hierarchicalItems {
+    final items = <HierarchicalSpaceItem>[];
+
+    // Add root spaces first
+    for (final space in rootSpaces) {
+      items.add(HierarchicalSpaceItem.space(space));
+    }
+
+    // Add collections with their spaces
+    for (final collectionId in collectionIds) {
+      final collection = collections[collectionId];
+      if (collection != null) {
+        final collectionSpaces = spacesInCollection(collectionId);
+        items.add(HierarchicalSpaceItem.collection(
+          collection,
+          collectionSpaces,
+        ));
+      }
+    }
+
+    return items;
+  }
 }
 
-/// View mode for spaces list
+/// View mode for spaces list (list vs grid)
 enum SpaceViewMode { list, grid }
+
+/// Display mode for spaces (flat vs hierarchical with collections)
+enum SpaceDisplayMode { flat, hierarchical }
+
+/// Represents an item in the hierarchical view
+class HierarchicalSpaceItem {
+  final SpaceCollection? collection;
+  final Space? space;
+  final List<Space> childSpaces;
+  final bool isCollection;
+
+  const HierarchicalSpaceItem._({
+    this.collection,
+    this.space,
+    this.childSpaces = const [],
+    required this.isCollection,
+  });
+
+  factory HierarchicalSpaceItem.space(Space space) {
+    return HierarchicalSpaceItem._(
+      space: space,
+      isCollection: false,
+    );
+  }
+
+  factory HierarchicalSpaceItem.collection(
+    SpaceCollection collection,
+    List<Space> spaces,
+  ) {
+    return HierarchicalSpaceItem._(
+      collection: collection,
+      childSpaces: spaces,
+      isCollection: true,
+    );
+  }
+
+  String get title => isCollection ? collection!.title : space!.title;
+  String? get emoji => isCollection ? collection!.emoji : space!.emoji;
+}
 
 /// Notifier for spaces state
 class SpacesNotifier extends StateNotifier<SpacesState> {
@@ -79,6 +168,11 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
         forceRefresh: forceRefresh,
       );
       state = state.copyWith(spaces: spaces, isLoading: false);
+
+      // If in hierarchical mode, load collections
+      if (state.displayMode == SpaceDisplayMode.hierarchical) {
+        await _loadCollections();
+      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -87,12 +181,49 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
     }
   }
 
+  /// Load collection details for spaces that have a parent
+  Future<void> _loadCollections() async {
+    final collectionIds = state.collectionIds;
+    if (collectionIds.isEmpty) return;
+
+    final collections = Map<String, SpaceCollection>.from(state.collections);
+
+    for (final collectionId in collectionIds) {
+      if (!collections.containsKey(collectionId)) {
+        try {
+          final collection = await _repository.getCollectionById(collectionId);
+          collections[collectionId] = collection;
+        } catch (e) {
+          // Silently ignore collection fetch errors
+        }
+      }
+    }
+
+    state = state.copyWith(collections: collections);
+  }
+
   /// Refresh spaces
   Future<void> refresh() => loadSpaces(forceRefresh: true);
 
-  /// Set view mode
+  /// Set view mode (list/grid)
   void setViewMode(SpaceViewMode mode) {
     state = state.copyWith(viewMode: mode);
+  }
+
+  /// Set display mode (flat/hierarchical)
+  Future<void> setDisplayMode(SpaceDisplayMode mode) async {
+    state = state.copyWith(displayMode: mode);
+    if (mode == SpaceDisplayMode.hierarchical && state.collections.isEmpty) {
+      await _loadCollections();
+    }
+  }
+
+  /// Toggle display mode between flat and hierarchical
+  Future<void> toggleDisplayMode() async {
+    final newMode = state.displayMode == SpaceDisplayMode.flat
+        ? SpaceDisplayMode.hierarchical
+        : SpaceDisplayMode.flat;
+    await setDisplayMode(newMode);
   }
 
   /// Set search query

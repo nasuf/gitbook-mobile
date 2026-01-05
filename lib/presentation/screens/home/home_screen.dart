@@ -5,6 +5,7 @@ import '../../providers/space_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/common/empty_state.dart';
 import '../../widgets/common/error_state.dart';
+import '../../widgets/space/hierarchical_spaces_list.dart';
 import '../../widgets/space/recent_spaces_section.dart';
 import '../../widgets/space/spaces_list.dart';
 import '../../widgets/user/organization_switcher.dart';
@@ -271,22 +272,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 Row(
                   children: [
+                    // Display mode toggle (flat/hierarchical)
                     IconButton(
                       icon: Icon(
-                        spacesState.viewMode == SpaceViewMode.list
+                        spacesState.displayMode == SpaceDisplayMode.flat
                             ? Icons.view_list
-                            : Icons.grid_view,
+                            : Icons.account_tree,
                       ),
                       onPressed: () {
-                        ref.read(spacesProvider.notifier).setViewMode(
-                              spacesState.viewMode == SpaceViewMode.list
-                                  ? SpaceViewMode.grid
-                                  : SpaceViewMode.list,
-                            );
+                        ref.read(spacesProvider.notifier).toggleDisplayMode();
                       },
-                      tooltip: spacesState.viewMode == SpaceViewMode.list
-                          ? 'Grid view'
-                          : 'List view',
+                      tooltip: spacesState.displayMode == SpaceDisplayMode.flat
+                          ? 'Show collections'
+                          : 'Flat view',
                     ),
                   ],
                 ),
@@ -302,6 +300,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               title: 'No Results',
               message: 'No spaces match your search.',
             ),
+          )
+        else if (spacesState.displayMode == SpaceDisplayMode.hierarchical)
+          HierarchicalSpacesList(
+            items: spacesState.hierarchicalItems,
+            onSpaceTap: (space) {
+              // Add to recent
+              ref.read(recentSpacesProvider.notifier).addRecent(
+                    space,
+                    organizationTitle:
+                        ref.read(organizationsProvider).currentOrganization?.title,
+                  );
+              Navigator.of(context).pushNamed('/space/${space.id}');
+            },
+            onSpaceDelete: (space) => _showDeleteConfirmation(space),
           )
         else
           SpacesList(

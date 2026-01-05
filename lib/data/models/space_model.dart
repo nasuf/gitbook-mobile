@@ -28,12 +28,15 @@ class SpaceModel with _$SpaceModel {
     required String id,
     required String title,
     String? description,
+    String? emoji,
     SpaceVisibility? visibility,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
     SpaceUrls? urls,
     String? organizationId,
+    /// ID of the parent collection (if the space belongs to a collection)
+    String? parent,
   }) = _SpaceModel;
 
   factory SpaceModel.fromJson(Map<String, dynamic> json) =>

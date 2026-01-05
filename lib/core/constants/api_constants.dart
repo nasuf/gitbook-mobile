@@ -24,6 +24,11 @@ class ApiConstants {
   static String orgMembers(String orgId) => '/orgs/$orgId/members';
   static String orgSpaces(String orgId) => '/orgs/$orgId/spaces';
 
+  // Collections endpoints
+  static String collection(String collectionId) => '/collections/$collectionId';
+  static String collectionSpaces(String collectionId) =>
+      '/collections/$collectionId/spaces';
+
   // Spaces endpoints
   static const String spaces = '/spaces';
   static String space(String spaceId) => '/spaces/$spaceId';

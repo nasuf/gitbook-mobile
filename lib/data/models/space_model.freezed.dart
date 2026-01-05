@@ -23,12 +23,16 @@ mixin _$SpaceModel {
   String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  String? get emoji => throw _privateConstructorUsedError;
   SpaceVisibility? get visibility => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get deletedAt => throw _privateConstructorUsedError;
   SpaceUrls? get urls => throw _privateConstructorUsedError;
   String? get organizationId => throw _privateConstructorUsedError;
+
+  /// ID of the parent collection (if the space belongs to a collection)
+  String? get parent => throw _privateConstructorUsedError;
 
   /// Serializes this SpaceModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,12 +54,14 @@ abstract class $SpaceModelCopyWith<$Res> {
       {String id,
       String title,
       String? description,
+      String? emoji,
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
       DateTime? deletedAt,
       SpaceUrls? urls,
-      String? organizationId});
+      String? organizationId,
+      String? parent});
 
   $SpaceUrlsCopyWith<$Res>? get urls;
 }
@@ -78,12 +84,14 @@ class _$SpaceModelCopyWithImpl<$Res, $Val extends SpaceModel>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? emoji = freezed,
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? urls = freezed,
     Object? organizationId = freezed,
+    Object? parent = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -97,6 +105,10 @@ class _$SpaceModelCopyWithImpl<$Res, $Val extends SpaceModel>
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
               as String?,
       visibility: freezed == visibility
           ? _value.visibility
@@ -121,6 +133,10 @@ class _$SpaceModelCopyWithImpl<$Res, $Val extends SpaceModel>
       organizationId: freezed == organizationId
           ? _value.organizationId
           : organizationId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      parent: freezed == parent
+          ? _value.parent
+          : parent // ignore: cast_nullable_to_non_nullable
               as String?,
     ) as $Val);
   }
@@ -152,12 +168,14 @@ abstract class _$$SpaceModelImplCopyWith<$Res>
       {String id,
       String title,
       String? description,
+      String? emoji,
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
       DateTime? deletedAt,
       SpaceUrls? urls,
-      String? organizationId});
+      String? organizationId,
+      String? parent});
 
   @override
   $SpaceUrlsCopyWith<$Res>? get urls;
@@ -179,12 +197,14 @@ class __$$SpaceModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? description = freezed,
+    Object? emoji = freezed,
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? urls = freezed,
     Object? organizationId = freezed,
+    Object? parent = freezed,
   }) {
     return _then(_$SpaceModelImpl(
       id: null == id
@@ -198,6 +218,10 @@ class __$$SpaceModelImplCopyWithImpl<$Res>
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      emoji: freezed == emoji
+          ? _value.emoji
+          : emoji // ignore: cast_nullable_to_non_nullable
               as String?,
       visibility: freezed == visibility
           ? _value.visibility
@@ -223,6 +247,10 @@ class __$$SpaceModelImplCopyWithImpl<$Res>
           ? _value.organizationId
           : organizationId // ignore: cast_nullable_to_non_nullable
               as String?,
+      parent: freezed == parent
+          ? _value.parent
+          : parent // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -234,12 +262,14 @@ class _$SpaceModelImpl implements _SpaceModel {
       {required this.id,
       required this.title,
       this.description,
+      this.emoji,
       this.visibility,
       this.createdAt,
       this.updatedAt,
       this.deletedAt,
       this.urls,
-      this.organizationId});
+      this.organizationId,
+      this.parent});
 
   factory _$SpaceModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$SpaceModelImplFromJson(json);
@@ -250,6 +280,8 @@ class _$SpaceModelImpl implements _SpaceModel {
   final String title;
   @override
   final String? description;
+  @override
+  final String? emoji;
   @override
   final SpaceVisibility? visibility;
   @override
@@ -263,9 +295,13 @@ class _$SpaceModelImpl implements _SpaceModel {
   @override
   final String? organizationId;
 
+  /// ID of the parent collection (if the space belongs to a collection)
+  @override
+  final String? parent;
+
   @override
   String toString() {
-    return 'SpaceModel(id: $id, title: $title, description: $description, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, urls: $urls, organizationId: $organizationId)';
+    return 'SpaceModel(id: $id, title: $title, description: $description, emoji: $emoji, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, urls: $urls, organizationId: $organizationId, parent: $parent)';
   }
 
   @override
@@ -277,6 +313,7 @@ class _$SpaceModelImpl implements _SpaceModel {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.emoji, emoji) || other.emoji == emoji) &&
             (identical(other.visibility, visibility) ||
                 other.visibility == visibility) &&
             (identical(other.createdAt, createdAt) ||
@@ -287,13 +324,25 @@ class _$SpaceModelImpl implements _SpaceModel {
                 other.deletedAt == deletedAt) &&
             (identical(other.urls, urls) || other.urls == urls) &&
             (identical(other.organizationId, organizationId) ||
-                other.organizationId == organizationId));
+                other.organizationId == organizationId) &&
+            (identical(other.parent, parent) || other.parent == parent));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description,
-      visibility, createdAt, updatedAt, deletedAt, urls, organizationId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      emoji,
+      visibility,
+      createdAt,
+      updatedAt,
+      deletedAt,
+      urls,
+      organizationId,
+      parent);
 
   /// Create a copy of SpaceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -316,12 +365,14 @@ abstract class _SpaceModel implements SpaceModel {
       {required final String id,
       required final String title,
       final String? description,
+      final String? emoji,
       final SpaceVisibility? visibility,
       final DateTime? createdAt,
       final DateTime? updatedAt,
       final DateTime? deletedAt,
       final SpaceUrls? urls,
-      final String? organizationId}) = _$SpaceModelImpl;
+      final String? organizationId,
+      final String? parent}) = _$SpaceModelImpl;
 
   factory _SpaceModel.fromJson(Map<String, dynamic> json) =
       _$SpaceModelImpl.fromJson;
@@ -332,6 +383,8 @@ abstract class _SpaceModel implements SpaceModel {
   String get title;
   @override
   String? get description;
+  @override
+  String? get emoji;
   @override
   SpaceVisibility? get visibility;
   @override
@@ -344,6 +397,10 @@ abstract class _SpaceModel implements SpaceModel {
   SpaceUrls? get urls;
   @override
   String? get organizationId;
+
+  /// ID of the parent collection (if the space belongs to a collection)
+  @override
+  String? get parent;
 
   /// Create a copy of SpaceModel
   /// with the given fields replaced by the non-null parameter values.

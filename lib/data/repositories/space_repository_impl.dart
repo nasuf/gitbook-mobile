@@ -3,6 +3,7 @@ import '../../domain/entities/space_entity.dart';
 import '../../domain/repositories/space_repository.dart';
 import '../datasources/local/content_local_datasource.dart';
 import '../datasources/remote/gitbook_api_client.dart';
+import '../models/collection_model.dart' as collection_model;
 import '../models/space_model.dart' as model;
 
 /// Implementation of SpaceRepository
@@ -54,6 +55,12 @@ class SpaceRepositoryImpl implements SpaceRepository {
     await _localDataSource.cacheSpace(space);
 
     return _mapToSpace(space);
+  }
+
+  @override
+  Future<SpaceCollection> getCollectionById(String collectionId) async {
+    final collection = await _apiClient.getCollection(collectionId);
+    return _mapToCollection(collection);
   }
 
   @override
@@ -158,12 +165,26 @@ class SpaceRepositoryImpl implements SpaceRepository {
       id: space.id,
       title: space.title,
       description: space.description,
+      emoji: space.emoji,
       visibility: _mapVisibility(space.visibility),
       createdAt: space.createdAt,
       updatedAt: space.updatedAt,
       organizationId: space.organizationId,
       appUrl: space.urls?.app,
       publishedUrl: space.urls?.published,
+      parentId: space.parent,
+    );
+  }
+
+  SpaceCollection _mapToCollection(collection_model.CollectionModel collection) {
+    return SpaceCollection(
+      id: collection.id,
+      title: collection.title,
+      description: collection.description,
+      emoji: collection.emoji,
+      createdAt: collection.createdAt,
+      updatedAt: collection.updatedAt,
+      organizationId: collection.organizationId,
     );
   }
 
