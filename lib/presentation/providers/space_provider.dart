@@ -23,7 +23,7 @@ class SpacesState {
     this.isLoading = false,
     this.error,
     this.viewMode = SpaceViewMode.list,
-    this.displayMode = SpaceDisplayMode.flat,
+    this.displayMode = SpaceDisplayMode.hierarchical,
     this.searchQuery = '',
   });
 
@@ -189,8 +189,9 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
       );
       state = state.copyWith(spaces: spaces, isLoading: false);
 
-      // If in hierarchical mode, load all collections
+      // If in hierarchical mode, always load all collections
       if (state.displayMode == SpaceDisplayMode.hierarchical) {
+        // Force reload collections to ensure we have the latest data
         await loadAllCollections();
         await _loadCollections();
       }
@@ -233,14 +234,12 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
 
   /// Set display mode (flat/hierarchical)
   Future<void> setDisplayMode(SpaceDisplayMode mode) async {
-    state = state.copyWith(displayMode: mode);
+    state = state.copyWith(displayMode: mode, isLoading: mode == SpaceDisplayMode.hierarchical);
     if (mode == SpaceDisplayMode.hierarchical) {
-      if (state.allCollections.isEmpty) {
-        await loadAllCollections();
-      }
-      if (state.collections.isEmpty) {
-        await _loadCollections();
-      }
+      // Always reload collections when switching to hierarchical mode
+      await loadAllCollections();
+      await _loadCollections();
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -264,14 +263,10 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
 
   /// Delete a space
   Future<void> deleteSpace(String spaceId) async {
-    try {
-      await _repository.deleteSpace(spaceId);
-      state = state.copyWith(
-        spaces: state.spaces.where((s) => s.id != spaceId).toList(),
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await _repository.deleteSpace(spaceId);
+    state = state.copyWith(
+      spaces: state.spaces.where((s) => s.id != spaceId).toList(),
+    );
   }
 
   /// Load all collections for the current organization

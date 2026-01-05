@@ -190,9 +190,17 @@ class GitBookApiClient {
     return SpaceModel.fromJson(response.data!);
   }
 
-  /// Delete a space
+  /// Delete a space (moves to trash)
   Future<void> deleteSpace(String spaceId) async {
     await _client.delete(ApiConstants.space(spaceId));
+  }
+
+  /// Restore a space from trash
+  Future<SpaceModel> restoreSpace(String spaceId) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      ApiConstants.restoreSpace(spaceId),
+    );
+    return SpaceModel.fromJson(response.data!);
   }
 
   // ============ Content / Pages ============

@@ -20,12 +20,14 @@ String? _convertEmojiCode(String? emojiCode) {
 class HierarchicalSpacesList extends StatefulWidget {
   final List<HierarchicalSpaceItem> items;
   final void Function(Space) onSpaceTap;
+  final void Function(SpaceCollection) onCollectionTap;
   final void Function(Space)? onSpaceDelete;
 
   const HierarchicalSpacesList({
     super.key,
     required this.items,
     required this.onSpaceTap,
+    required this.onCollectionTap,
     this.onSpaceDelete,
   });
 
@@ -39,12 +41,7 @@ class _HierarchicalSpacesListState extends State<HierarchicalSpacesList> {
   @override
   void initState() {
     super.initState();
-    // Expand all collections by default
-    for (final item in widget.items) {
-      if (item.isCollection) {
-        _expandedCollections.add(item.collection!.id);
-      }
-    }
+    // Collections are collapsed by default
   }
 
   void _toggleCollection(String collectionId) {
@@ -69,6 +66,7 @@ class _HierarchicalSpacesListState extends State<HierarchicalSpacesList> {
               spaces: item.childSpaces,
               isExpanded: _expandedCollections.contains(item.collection!.id),
               onToggle: () => _toggleCollection(item.collection!.id),
+              onCollectionTap: () => widget.onCollectionTap(item.collection!),
               onSpaceTap: widget.onSpaceTap,
               onSpaceDelete: widget.onSpaceDelete,
             );
@@ -93,6 +91,7 @@ class _CollectionTile extends StatelessWidget {
   final List<Space> spaces;
   final bool isExpanded;
   final VoidCallback onToggle;
+  final VoidCallback onCollectionTap;
   final void Function(Space) onSpaceTap;
   final void Function(Space)? onSpaceDelete;
 
@@ -101,6 +100,7 @@ class _CollectionTile extends StatelessWidget {
     required this.spaces,
     required this.isExpanded,
     required this.onToggle,
+    required this.onCollectionTap,
     required this.onSpaceTap,
     this.onSpaceDelete,
   });
@@ -113,57 +113,73 @@ class _CollectionTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Collection header
-        InkWell(
-          onTap: onToggle,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: _convertEmojiCode(collection.emoji) != null
-                        ? Text(
-                            _convertEmojiCode(collection.emoji)!,
-                            style: const TextStyle(fontSize: 20),
-                          )
-                        : Icon(
-                            Icons.folder_outlined,
-                            color: theme.colorScheme.onSecondaryContainer,
-                          ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Left area - tapping navigates to collection
+              Expanded(
+                child: InkWell(
+                  onTap: onCollectionTap,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
                     children: [
-                      Text(
-                        collection.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: _convertEmojiCode(collection.emoji) != null
+                              ? Text(
+                                  _convertEmojiCode(collection.emoji)!,
+                                  style: const TextStyle(fontSize: 20),
+                                )
+                              : Icon(
+                                  Icons.folder_outlined,
+                                  color: theme.colorScheme.onSecondaryContainer,
+                                ),
                         ),
                       ),
-                      Text(
-                        '${spaces.length} space${spaces.length == 1 ? '' : 's'}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              collection.title,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              '${spaces.length} space${spaces.length == 1 ? '' : 's'}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  isExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: theme.colorScheme.onSurfaceVariant,
+              ),
+              // Right arrow - tapping expands/collapses
+              InkWell(
+                onTap: onToggle,
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    isExpanded ? Icons.keyboard_arrow_down : Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         // Expanded spaces

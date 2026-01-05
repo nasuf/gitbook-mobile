@@ -23,6 +23,8 @@ class Space with _$Space {
     SpaceVisibility? visibility,
     DateTime? createdAt,
     DateTime? updatedAt,
+    /// When the space was moved to trash (null if not deleted)
+    DateTime? deletedAt,
     String? organizationId,
     String? appUrl,
     String? publishedUrl,
@@ -40,6 +42,17 @@ class Space with _$Space {
 
   /// Check if space belongs to a collection
   bool get isInCollection => parentId != null;
+
+  /// Check if space is in trash
+  bool get isDeleted => deletedAt != null;
+
+  /// Days remaining until permanent deletion (7 days from deletedAt)
+  int? get daysUntilPermanentDeletion {
+    if (deletedAt == null) return null;
+    final permanentDeletionDate = deletedAt!.add(const Duration(days: 7));
+    final remaining = permanentDeletionDate.difference(DateTime.now()).inDays;
+    return remaining > 0 ? remaining : 0;
+  }
 }
 
 /// Collection entity for domain layer

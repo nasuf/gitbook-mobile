@@ -281,6 +281,11 @@ class CacheManager {
   Future<void> clearRecentItems() {
     return _database.clearRecentItems();
   }
+
+  /// Remove a specific recent item
+  Future<void> removeRecentItem(String itemType, String itemId) {
+    return _database.deleteRecentItem(itemType, itemId);
+  }
 }
 
 /// Cache statistics

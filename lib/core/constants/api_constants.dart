@@ -33,6 +33,7 @@ class ApiConstants {
   // Spaces endpoints
   static const String spaces = '/spaces';
   static String space(String spaceId) => '/spaces/$spaceId';
+  static String restoreSpace(String spaceId) => '/spaces/$spaceId/restore';
   static String spaceContent(String spaceId) => '/spaces/$spaceId/content';
   static String spaceContentByPath(String spaceId, String path) =>
       '/spaces/$spaceId/content/path/$path';

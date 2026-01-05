@@ -41,8 +41,14 @@ abstract class SpaceRepository {
     SpaceVisibility? visibility,
   });
 
-  /// Delete a space
+  /// Delete a space (moves to trash)
   Future<void> deleteSpace(String spaceId);
+
+  /// Get trashed spaces for an organization
+  Future<List<Space>> getTrashedSpaces(String organizationId);
+
+  /// Restore a space from trash
+  Future<Space> restoreSpace(String spaceId);
 
   /// Search spaces within an organization
   Future<List<Space>> searchSpaces(
@@ -58,4 +64,7 @@ abstract class SpaceRepository {
 
   /// Clear recent spaces
   Future<void> clearRecentSpaces();
+
+  /// Remove a space from recent items
+  Future<void> removeFromRecentSpaces(String spaceId);
 }

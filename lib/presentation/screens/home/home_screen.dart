@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../domain/entities/space_entity.dart';
 import '../../providers/space_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/common/empty_state.dart';
@@ -9,7 +10,9 @@ import '../../widgets/space/hierarchical_spaces_list.dart';
 import '../../widgets/space/recent_spaces_section.dart';
 import '../../widgets/space/spaces_list.dart';
 import '../../widgets/user/organization_switcher.dart';
+import '../collections/collection_detail_screen.dart';
 import '../spaces/create_space_screen.dart';
+import '../trash/trash_screen.dart';
 
 /// Home screen showing organizations and spaces
 class HomeScreen extends ConsumerStatefulWidget {
@@ -85,6 +88,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Navigator.of(context).pushNamed('/profile');
   }
 
+  void _navigateToTrash() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const TrashScreen()),
+    );
+  }
+
+  void _navigateToCollection(SpaceCollection collection) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CollectionDetailScreen(collection: collection),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final orgState = ref.watch(organizationsProvider);
@@ -127,6 +144,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             icon: Icon(_showSearch ? Icons.close : Icons.search),
             onPressed: _toggleSearch,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: 'Trash',
+            onPressed: _navigateToTrash,
           ),
           IconButton(
             icon: const Icon(Icons.person_outline),
@@ -301,6 +323,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               message: 'No spaces match your search.',
             ),
           )
+        else if (spacesState.displayMode == SpaceDisplayMode.hierarchical &&
+            spacesState.isLoading)
+          const SliverFillRemaining(
+            child: Center(child: CircularProgressIndicator()),
+          )
         else if (spacesState.displayMode == SpaceDisplayMode.hierarchical)
           HierarchicalSpacesList(
             items: spacesState.hierarchicalItems,
@@ -313,6 +340,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
               Navigator.of(context).pushNamed('/space/${space.id}');
             },
+            onCollectionTap: _navigateToCollection,
             onSpaceDelete: (space) => _showDeleteConfirmation(space),
           )
         else
@@ -335,29 +363,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _showDeleteConfirmation(space) async {
-    final confirmed = await showDialog<bool>(
+    final deleted = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Space'),
-        content: Text('Are you sure you want to delete "${space.title}"? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
+      barrierDismissible: false,
+      builder: (context) => _DeleteSpaceDialog(
+        spaceTitle: space.title,
+        onDelete: () async {
+          await ref.read(spacesProvider.notifier).deleteSpace(space.id);
+        },
       ),
     );
 
-    if (confirmed == true) {
-      await ref.read(spacesProvider.notifier).deleteSpace(space.id);
+    if (deleted == true && mounted) {
+      // Reload recent spaces to remove deleted space
+      ref.read(recentSpacesProvider.notifier).loadRecentSpaces();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Space deleted successfully')),
+      );
     }
+  }
+}
+
+/// Dialog for deleting a space with loading state
+class _DeleteSpaceDialog extends StatefulWidget {
+  final String spaceTitle;
+  final Future<void> Function() onDelete;
+
+  const _DeleteSpaceDialog({
+    required this.spaceTitle,
+    required this.onDelete,
+  });
+
+  @override
+  State<_DeleteSpaceDialog> createState() => _DeleteSpaceDialogState();
+}
+
+class _DeleteSpaceDialogState extends State<_DeleteSpaceDialog> {
+  bool _isDeleting = false;
+
+  Future<void> _handleDelete() async {
+    setState(() => _isDeleting = true);
+    try {
+      await widget.onDelete();
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDeleting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Delete Space'),
+      content: Text('Are you sure you want to delete "${widget.spaceTitle}"? This action cannot be undone.'),
+      actions: [
+        TextButton(
+          onPressed: _isDeleting ? null : () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _isDeleting ? null : _handleDelete,
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          child: _isDeleting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('Delete'),
+        ),
+      ],
+    );
   }
 }

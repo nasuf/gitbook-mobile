@@ -23,6 +23,9 @@ mixin _$Space {
   SpaceVisibility? get visibility => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
+
+  /// When the space was moved to trash (null if not deleted)
+  DateTime? get deletedAt => throw _privateConstructorUsedError;
   String? get organizationId => throw _privateConstructorUsedError;
   String? get appUrl => throw _privateConstructorUsedError;
   String? get publishedUrl => throw _privateConstructorUsedError;
@@ -49,6 +52,7 @@ abstract class $SpaceCopyWith<$Res> {
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
+      DateTime? deletedAt,
       String? organizationId,
       String? appUrl,
       String? publishedUrl,
@@ -77,6 +81,7 @@ class _$SpaceCopyWithImpl<$Res, $Val extends Space>
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
     Object? organizationId = freezed,
     Object? appUrl = freezed,
     Object? publishedUrl = freezed,
@@ -110,6 +115,10 @@ class _$SpaceCopyWithImpl<$Res, $Val extends Space>
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       organizationId: freezed == organizationId
           ? _value.organizationId
@@ -146,6 +155,7 @@ abstract class _$$SpaceImplCopyWith<$Res> implements $SpaceCopyWith<$Res> {
       SpaceVisibility? visibility,
       DateTime? createdAt,
       DateTime? updatedAt,
+      DateTime? deletedAt,
       String? organizationId,
       String? appUrl,
       String? publishedUrl,
@@ -172,6 +182,7 @@ class __$$SpaceImplCopyWithImpl<$Res>
     Object? visibility = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
     Object? organizationId = freezed,
     Object? appUrl = freezed,
     Object? publishedUrl = freezed,
@@ -206,6 +217,10 @@ class __$$SpaceImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       organizationId: freezed == organizationId
           ? _value.organizationId
           : organizationId // ignore: cast_nullable_to_non_nullable
@@ -237,6 +252,7 @@ class _$SpaceImpl extends _Space {
       this.visibility,
       this.createdAt,
       this.updatedAt,
+      this.deletedAt,
       this.organizationId,
       this.appUrl,
       this.publishedUrl,
@@ -257,6 +273,10 @@ class _$SpaceImpl extends _Space {
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+
+  /// When the space was moved to trash (null if not deleted)
+  @override
+  final DateTime? deletedAt;
   @override
   final String? organizationId;
   @override
@@ -270,7 +290,7 @@ class _$SpaceImpl extends _Space {
 
   @override
   String toString() {
-    return 'Space(id: $id, title: $title, description: $description, emoji: $emoji, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, organizationId: $organizationId, appUrl: $appUrl, publishedUrl: $publishedUrl, parentId: $parentId)';
+    return 'Space(id: $id, title: $title, description: $description, emoji: $emoji, visibility: $visibility, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, organizationId: $organizationId, appUrl: $appUrl, publishedUrl: $publishedUrl, parentId: $parentId)';
   }
 
   @override
@@ -289,6 +309,8 @@ class _$SpaceImpl extends _Space {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
+            (identical(other.deletedAt, deletedAt) ||
+                other.deletedAt == deletedAt) &&
             (identical(other.organizationId, organizationId) ||
                 other.organizationId == organizationId) &&
             (identical(other.appUrl, appUrl) || other.appUrl == appUrl) &&
@@ -308,6 +330,7 @@ class _$SpaceImpl extends _Space {
       visibility,
       createdAt,
       updatedAt,
+      deletedAt,
       organizationId,
       appUrl,
       publishedUrl,
@@ -331,6 +354,7 @@ abstract class _Space extends Space {
       final SpaceVisibility? visibility,
       final DateTime? createdAt,
       final DateTime? updatedAt,
+      final DateTime? deletedAt,
       final String? organizationId,
       final String? appUrl,
       final String? publishedUrl,
@@ -351,6 +375,10 @@ abstract class _Space extends Space {
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+
+  /// When the space was moved to trash (null if not deleted)
+  @override
+  DateTime? get deletedAt;
   @override
   String? get organizationId;
   @override

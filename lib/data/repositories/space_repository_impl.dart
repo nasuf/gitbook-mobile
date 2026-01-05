@@ -25,21 +25,31 @@ class SpaceRepositoryImpl implements SpaceRepository {
     String organizationId, {
     bool forceRefresh = false,
   }) async {
-    // Try cache first unless force refresh
-    if (!forceRefresh) {
-      final cached = await _localDataSource.getSpacesByOrganization(organizationId);
-      if (cached.isNotEmpty) {
-        return cached.map(_mapToSpace).toList();
+    // Always fetch from API to get fresh data
+    // This ensures deleted spaces don't appear from stale cache
+    try {
+      final response = await _apiClient.listSpaces(organizationId);
+
+      // Filter out trashed spaces (those with deletedAt set)
+      final activeSpaces = response.items
+          .where((space) => space.deletedAt == null)
+          .toList();
+
+      // Clear old cached spaces for this organization and cache new ones
+      await _localDataSource.clearSpacesByOrganization(organizationId);
+      await _localDataSource.cacheSpaces(activeSpaces);
+
+      return activeSpaces.map(_mapToSpace).toList();
+    } catch (e) {
+      // On network error, fall back to cache if available
+      if (!forceRefresh) {
+        final cached = await _localDataSource.getSpacesByOrganization(organizationId);
+        if (cached.isNotEmpty) {
+          return cached.map(_mapToSpace).toList();
+        }
       }
+      rethrow;
     }
-
-    // Fetch from API
-    final response = await _apiClient.listSpaces(organizationId);
-
-    // Cache the results
-    await _localDataSource.cacheSpaces(response.items);
-
-    return response.items.map(_mapToSpace).toList();
   }
 
   @override
@@ -134,6 +144,32 @@ class SpaceRepositoryImpl implements SpaceRepository {
 
     // Remove from cache
     await _cacheManager.invalidateSpace(spaceId);
+
+    // Also remove from recent items
+    await _cacheManager.removeRecentItem('space', spaceId);
+  }
+
+  @override
+  Future<List<Space>> getTrashedSpaces(String organizationId) async {
+    // Fetch all spaces from API (including trashed ones)
+    final response = await _apiClient.listSpaces(organizationId);
+
+    // Filter to only trashed spaces (those with deletedAt set)
+    final trashedSpaces = response.items
+        .where((space) => space.deletedAt != null)
+        .toList();
+
+    return trashedSpaces.map(_mapToSpace).toList();
+  }
+
+  @override
+  Future<Space> restoreSpace(String spaceId) async {
+    final space = await _apiClient.restoreSpace(spaceId);
+
+    // Cache the restored space
+    await _localDataSource.cacheSpace(space);
+
+    return _mapToSpace(space);
   }
 
   @override
@@ -182,6 +218,11 @@ class SpaceRepositoryImpl implements SpaceRepository {
     await _cacheManager.clearRecentItems();
   }
 
+  @override
+  Future<void> removeFromRecentSpaces(String spaceId) async {
+    await _cacheManager.removeRecentItem('space', spaceId);
+  }
+
   Space _mapToSpace(model.SpaceModel space) {
     return Space(
       id: space.id,
@@ -191,6 +232,7 @@ class SpaceRepositoryImpl implements SpaceRepository {
       visibility: _mapVisibility(space.visibility),
       createdAt: space.createdAt,
       updatedAt: space.updatedAt,
+      deletedAt: space.deletedAt,
       organizationId: space.organizationId,
       appUrl: space.urls?.app,
       publishedUrl: space.urls?.published,

@@ -129,6 +129,11 @@ class ContentLocalDataSource {
     await cacheSpaces([space], ttl: ttl);
   }
 
+  /// Clear all cached spaces for an organization
+  Future<void> clearSpacesByOrganization(String orgId) async {
+    await _database.deleteSpacesByOrganization(orgId);
+  }
+
   SpaceModel _mapSpace(CachedSpace cached) {
     return SpaceModel(
       id: cached.id,
