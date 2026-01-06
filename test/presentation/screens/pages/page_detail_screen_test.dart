@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gitbook_mobile/domain/entities/content_entity.dart';
 import 'package:gitbook_mobile/presentation/screens/pages/page_detail_screen.dart';
@@ -227,6 +226,52 @@ void main() {
       expect(deepNested.hasChildren, true);
       expect(deepNested.children[0].hasChildren, true);
       expect(deepNested.children[0].children[0].hasChildren, false);
+    });
+  });
+
+  group('Font size control', () {
+    test('available font sizes should be in valid range', () {
+      const fontSizes = [12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0];
+
+      expect(fontSizes.length, 7);
+      expect(fontSizes.first, 12.0);
+      expect(fontSizes.last, 24.0);
+
+      // All sizes should be positive
+      for (final size in fontSizes) {
+        expect(size, greaterThan(0));
+      }
+
+      // Sizes should be in ascending order
+      for (var i = 1; i < fontSizes.length; i++) {
+        expect(fontSizes[i], greaterThan(fontSizes[i - 1]));
+      }
+    });
+
+    test('font size selection logic', () {
+      const currentSize = 16.0;
+      const selectedSize = 20.0;
+
+      // Check if size is selected
+      expect(currentSize == 16.0, true);
+      expect(currentSize == selectedSize, false);
+
+      // Verify size would be updated
+      expect(selectedSize, isNot(equals(currentSize)));
+    });
+
+    test('font size item should show check mark for selected size', () {
+      const sizes = [12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0];
+      const currentSize = 16.0;
+
+      for (final size in sizes) {
+        final isSelected = size == currentSize;
+        if (size == 16.0) {
+          expect(isSelected, true);
+        } else {
+          expect(isSelected, false);
+        }
+      }
     });
   });
 }

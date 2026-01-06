@@ -16,6 +16,8 @@ class GitBookMarkdown extends StatelessWidget {
   final ScrollPhysics? physics;
   final bool shrinkWrap;
   final EdgeInsets? padding;
+  /// Base font size for content (default: 16.0)
+  final double fontSize;
 
   const GitBookMarkdown({
     super.key,
@@ -25,6 +27,7 @@ class GitBookMarkdown extends StatelessWidget {
     this.physics,
     this.shrinkWrap = false,
     this.padding,
+    this.fontSize = 16.0,
   });
 
   @override
@@ -38,7 +41,7 @@ class GitBookMarkdown extends StatelessWidget {
       shrinkWrap: shrinkWrap,
       physics: physics,
       padding: padding ?? const EdgeInsets.all(16),
-      styleSheet: _buildStyleSheet(theme),
+      styleSheet: _buildStyleSheet(theme, fontSize),
       builders: {
         'code': _CodeBlockBuilder(isDark: isDark),
         'pre': _CodeBlockBuilder(isDark: isDark),
@@ -97,45 +100,61 @@ class GitBookMarkdown extends StatelessWidget {
     });
   }
 
-  MarkdownStyleSheet _buildStyleSheet(ThemeData theme) {
-    final textTheme = theme.textTheme;
+  MarkdownStyleSheet _buildStyleSheet(ThemeData theme, double baseFontSize) {
     final colorScheme = theme.colorScheme;
+
+    // Scale factors for different text styles
+    final h1Size = baseFontSize * 2.0;
+    final h2Size = baseFontSize * 1.75;
+    final h3Size = baseFontSize * 1.5;
+    final h4Size = baseFontSize * 1.25;
+    final h5Size = baseFontSize * 1.1;
+    final h6Size = baseFontSize * 1.0;
+    final codeSize = baseFontSize * 0.875;
 
     return MarkdownStyleSheet(
       // Headers
-      h1: textTheme.headlineLarge?.copyWith(
+      h1: TextStyle(
+        fontSize: h1Size,
         fontWeight: FontWeight.bold,
         color: colorScheme.onSurface,
       ),
-      h2: textTheme.headlineMedium?.copyWith(
+      h2: TextStyle(
+        fontSize: h2Size,
         fontWeight: FontWeight.bold,
         color: colorScheme.onSurface,
       ),
-      h3: textTheme.headlineSmall?.copyWith(
+      h3: TextStyle(
+        fontSize: h3Size,
         fontWeight: FontWeight.w600,
         color: colorScheme.onSurface,
       ),
-      h4: textTheme.titleLarge?.copyWith(
+      h4: TextStyle(
+        fontSize: h4Size,
         fontWeight: FontWeight.w600,
         color: colorScheme.onSurface,
       ),
-      h5: textTheme.titleMedium?.copyWith(
+      h5: TextStyle(
+        fontSize: h5Size,
         fontWeight: FontWeight.w600,
         color: colorScheme.onSurface,
       ),
-      h6: textTheme.titleSmall?.copyWith(
+      h6: TextStyle(
+        fontSize: h6Size,
         fontWeight: FontWeight.w600,
         color: colorScheme.onSurface,
       ),
 
       // Body text
-      p: textTheme.bodyLarge?.copyWith(
+      p: TextStyle(
+        fontSize: baseFontSize,
         height: 1.6,
         color: colorScheme.onSurface,
       ),
 
       // Links
-      a: textTheme.bodyLarge?.copyWith(
+      a: TextStyle(
+        fontSize: baseFontSize,
         color: colorScheme.primary,
         decoration: TextDecoration.underline,
       ),
@@ -143,7 +162,7 @@ class GitBookMarkdown extends StatelessWidget {
       // Inline code only (code blocks use custom builder)
       code: TextStyle(
         fontFamily: 'monospace',
-        fontSize: 14,
+        fontSize: codeSize,
         color: colorScheme.primary,
         backgroundColor: colorScheme.surfaceContainerHighest,
       ),
@@ -152,7 +171,8 @@ class GitBookMarkdown extends StatelessWidget {
       codeblockPadding: EdgeInsets.zero,
 
       // Blockquote
-      blockquote: textTheme.bodyLarge?.copyWith(
+      blockquote: TextStyle(
+        fontSize: baseFontSize,
         color: colorScheme.onSurfaceVariant,
         fontStyle: FontStyle.italic,
       ),
@@ -167,17 +187,20 @@ class GitBookMarkdown extends StatelessWidget {
       blockquotePadding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
 
       // Lists
-      listBullet: textTheme.bodyLarge?.copyWith(
+      listBullet: TextStyle(
+        fontSize: baseFontSize,
         color: colorScheme.onSurface,
       ),
       listIndent: 24,
 
       // Table
-      tableHead: textTheme.bodyMedium?.copyWith(
+      tableHead: TextStyle(
+        fontSize: baseFontSize * 0.875,
         fontWeight: FontWeight.bold,
         color: colorScheme.onSurface,
       ),
-      tableBody: textTheme.bodyMedium?.copyWith(
+      tableBody: TextStyle(
+        fontSize: baseFontSize * 0.875,
         color: colorScheme.onSurface,
       ),
       tableBorder: TableBorder.all(
@@ -198,7 +221,8 @@ class GitBookMarkdown extends StatelessWidget {
       ),
 
       // Checkbox
-      checkbox: textTheme.bodyLarge?.copyWith(
+      checkbox: TextStyle(
+        fontSize: baseFontSize,
         color: colorScheme.primary,
       ),
     );

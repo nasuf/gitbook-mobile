@@ -174,18 +174,22 @@ class ProfileScreen extends ConsumerWidget {
   void _showLogoutConfirmation(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Sign Out'),
         content: const Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ref.read(authNotifierProvider.notifier).logout();
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await ref.read(authNotifierProvider.notifier).logout();
+              if (context.mounted) {
+                // Pop all routes and return to root (login screen)
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
             child: const Text('Sign Out'),
           ),
@@ -227,13 +231,6 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(_getThemeLabel(settingsState.settings.themeMode)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showThemeSelector(context, ref, settingsState),
-          ),
-          ListTile(
-            leading: const Icon(Icons.text_fields),
-            title: const Text('Font Size'),
-            subtitle: Text('${settingsState.settings.fontSize.toInt()} pt'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showFontSizeSelector(context, ref, settingsState),
           ),
 
           const Divider(),
@@ -366,42 +363,6 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: (value) {
                   if (value != null) {
                     ref.read(userSettingsProvider.notifier).updateThemeMode(value);
-                  }
-                  Navigator.of(context).pop();
-                },
-              )),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  void _showFontSizeSelector(
-    BuildContext context,
-    WidgetRef ref,
-    UserSettingsState state,
-  ) {
-    final sizes = [12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0];
-
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Select Font Size',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          ...sizes.map((size) => RadioListTile<double>(
-                title: Text('${size.toInt()} pt'),
-                value: size,
-                groupValue: state.settings.fontSize,
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(userSettingsProvider.notifier).updateFontSize(value);
                   }
                   Navigator.of(context).pop();
                 },

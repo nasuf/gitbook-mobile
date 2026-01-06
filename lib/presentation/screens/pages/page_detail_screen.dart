@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/content_entity.dart';
 import '../../providers/content_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../widgets/common/error_state.dart';
 import '../../widgets/markdown/gitbook_markdown.dart';
 
@@ -50,13 +51,50 @@ class PageDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final key = PageContentKey(spaceId, pageId);
     final state = ref.watch(pageContentProvider(key));
+    final settingsState = ref.watch(userSettingsProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(state.content?.title ?? pageTitle),
+        actions: [
+          // Font size control
+          PopupMenuButton<double>(
+            icon: const Icon(Icons.text_fields),
+            tooltip: 'Font Size',
+            onSelected: (size) {
+              ref.read(userSettingsProvider.notifier).updateFontSize(size);
+            },
+            itemBuilder: (context) => [
+              _buildFontSizeItem(12.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(14.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(16.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(18.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(20.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(22.0, settingsState.settings.fontSize),
+              _buildFontSizeItem(24.0, settingsState.settings.fontSize),
+            ],
+          ),
+        ],
       ),
-      body: _buildBody(context, ref, state, theme),
+      body: _buildBody(context, ref, state, settingsState.settings.fontSize, theme),
+    );
+  }
+
+  PopupMenuEntry<double> _buildFontSizeItem(double size, double currentSize) {
+    final isSelected = size == currentSize;
+    return PopupMenuItem<double>(
+      value: size,
+      child: Row(
+        children: [
+          if (isSelected)
+            const Icon(Icons.check, size: 18)
+          else
+            const SizedBox(width: 18),
+          const SizedBox(width: 8),
+          Text('${size.toInt()} pt'),
+        ],
+      ),
     );
   }
 
@@ -92,6 +130,7 @@ class PageDetailScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     PageContentState state,
+    double fontSize,
     ThemeData theme,
   ) {
     final key = PageContentKey(spaceId, pageId);
@@ -152,6 +191,7 @@ class PageDetailScreen extends ConsumerWidget {
             GitBookMarkdown(
               data: content.markdown!,
               spaceId: spaceId,
+              fontSize: fontSize,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.zero,

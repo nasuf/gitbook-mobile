@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gitbook_mobile/data/datasources/remote/gitbook_api_client.dart';
 import 'package:gitbook_mobile/data/models/content_model.dart';
 import 'package:gitbook_mobile/data/repositories/content_repository_impl.dart';
-import 'package:gitbook_mobile/domain/entities/content_entity.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGitBookApiClient extends Mock implements GitBookApiClient {}

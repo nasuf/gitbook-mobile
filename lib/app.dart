@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'domain/entities/user_entity.dart';
 import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/user_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/home/home_screen.dart';
+import 'presentation/screens/profile/profile_screen.dart';
 import 'presentation/screens/spaces/space_detail_screen.dart';
 import 'presentation/screens/spaces/space_settings_screen.dart';
 import 'presentation/theme/app_theme.dart';
@@ -15,16 +18,28 @@ class GitBookApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final settingsState = ref.watch(userSettingsProvider);
 
     return MaterialApp(
       title: 'GitBook',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: _mapThemeMode(settingsState.settings.themeMode),
       home: _buildHome(authState),
       onGenerateRoute: _onGenerateRoute,
     );
+  }
+
+  ThemeMode _mapThemeMode(ThemeModeSetting setting) {
+    switch (setting) {
+      case ThemeModeSetting.light:
+        return ThemeMode.light;
+      case ThemeModeSetting.dark:
+        return ThemeMode.dark;
+      case ThemeModeSetting.system:
+        return ThemeMode.system;
+    }
   }
 
   Widget _buildHome(AuthUiState authState) {
@@ -65,12 +80,8 @@ class GitBookApp extends ConsumerWidget {
     }
 
     if (settings.name == '/profile') {
-      // TODO: Implement profile screen
       return MaterialPageRoute(
-        builder: (context) => const Scaffold(
-          appBar: null,
-          body: Center(child: Text('Profile Screen - Coming Soon')),
-        ),
+        builder: (context) => const ProfileScreen(),
         settings: settings,
       );
     }
