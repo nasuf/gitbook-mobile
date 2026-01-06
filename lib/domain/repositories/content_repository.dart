@@ -38,4 +38,7 @@ abstract class ContentRepository {
 
   /// Get breadcrumb trail for a page
   Future<List<BreadcrumbItem>> getBreadcrumb(String spaceId, String pageId);
+
+  /// Get child pages for a specific page (from table of contents)
+  Future<List<ContentPage>> getChildPages(String spaceId, String pageId);
 }

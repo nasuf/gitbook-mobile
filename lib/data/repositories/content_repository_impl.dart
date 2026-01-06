@@ -134,6 +134,28 @@ class ContentRepositoryImpl implements ContentRepository {
     return false;
   }
 
+  @override
+  Future<List<ContentPage>> getChildPages(String spaceId, String pageId) async {
+    final toc = await getTableOfContents(spaceId);
+    final page = _findPageById(toc, pageId);
+    return page?.children ?? [];
+  }
+
+  ContentPage? _findPageById(List<ContentPage> pages, String targetId) {
+    for (final page in pages) {
+      if (page.id == targetId) {
+        return page;
+      }
+      if (page.hasChildren) {
+        final found = _findPageById(page.children, targetId);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
   ContentPage _mapToPage(ContentModel model) {
     return ContentPage(
       id: model.id,

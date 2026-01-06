@@ -47,17 +47,15 @@ class _PagesListScreenState extends ConsumerState<PagesListScreen> {
   }
 
   void _navigateToPage(ContentPage page) {
-    if (page.isDocument || page.isLink) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => PageDetailScreen(
-            spaceId: widget.spaceId,
-            pageId: page.id,
-            pageTitle: page.title,
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PageDetailScreen(
+          spaceId: widget.spaceId,
+          pageId: page.id,
+          pageTitle: page.title,
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override

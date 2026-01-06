@@ -123,12 +123,14 @@ final tableOfContentsProvider = StateNotifierProvider.family<
 class PageContentState {
   final PageContent? content;
   final List<BreadcrumbItem> breadcrumb;
+  final List<ContentPage> childPages;
   final bool isLoading;
   final String? error;
 
   const PageContentState({
     this.content,
     this.breadcrumb = const [],
+    this.childPages = const [],
     this.isLoading = false,
     this.error,
   });
@@ -136,16 +138,21 @@ class PageContentState {
   PageContentState copyWith({
     PageContent? content,
     List<BreadcrumbItem>? breadcrumb,
+    List<ContentPage>? childPages,
     bool? isLoading,
     String? error,
   }) {
     return PageContentState(
       content: content ?? this.content,
       breadcrumb: breadcrumb ?? this.breadcrumb,
+      childPages: childPages ?? this.childPages,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
   }
+
+  /// Check if page has child pages
+  bool get hasChildPages => childPages.isNotEmpty;
 }
 
 /// Key for page content provider (spaceId + pageId)
@@ -185,9 +192,11 @@ class PageContentNotifier extends StateNotifier<PageContentState> {
     try {
       final content = await _repository.getPageById(_spaceId, _pageId);
       final breadcrumb = await _repository.getBreadcrumb(_spaceId, _pageId);
+      final childPages = await _repository.getChildPages(_spaceId, _pageId);
       state = state.copyWith(
         content: content,
         breadcrumb: breadcrumb,
+        childPages: childPages,
         isLoading: false,
       );
     } catch (e) {

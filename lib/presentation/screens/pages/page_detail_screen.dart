@@ -6,18 +6,45 @@ import '../../providers/content_provider.dart';
 import '../../widgets/common/error_state.dart';
 import '../../widgets/markdown/gitbook_markdown.dart';
 
+/// Custom route that slides from left to right (like going back)
+class _SlideFromLeftRoute<T> extends PageRouteBuilder<T> {
+  final Widget page;
+
+  _SlideFromLeftRoute({required this.page, super.settings})
+      : super(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(-1.0, 0.0);
+            const end = Offset.zero;
+            final tween = Tween(begin: begin, end: end)
+                .chain(CurveTween(curve: Curves.easeInOut));
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        );
+}
+
 /// Screen showing page content with breadcrumb navigation
 class PageDetailScreen extends ConsumerWidget {
   final String spaceId;
   final String pageId;
   final String pageTitle;
+  /// Navigation history: list of pageIds that were actually visited
+  final List<String> visitedHistory;
 
   const PageDetailScreen({
     super.key,
     required this.spaceId,
     required this.pageId,
     required this.pageTitle,
+    this.visitedHistory = const [],
   });
+
+  /// Current visited history including this page
+  List<String> get _currentVisitedHistory => [...visitedHistory, pageId];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,6 +58,34 @@ class PageDetailScreen extends ConsumerWidget {
       ),
       body: _buildBody(context, ref, state, theme),
     );
+  }
+
+  /// Navigate to a breadcrumb item
+  void _navigateToBreadcrumbItem(BuildContext context, BreadcrumbItem item) {
+    // Check if target page is in visited history
+    final targetIndex = visitedHistory.indexOf(item.id);
+
+    if (targetIndex >= 0) {
+      // Page was visited before, pop back to it
+      final popCount = visitedHistory.length - targetIndex;
+      var count = 0;
+      Navigator.of(context).popUntil((route) {
+        return count++ >= popCount || route.isFirst;
+      });
+    } else {
+      // Page was not visited, use pushReplacement with reverse animation
+      // This replaces current page, so back button goes to previous visited page
+      Navigator.of(context).pushReplacement(
+        _SlideFromLeftRoute(
+          page: PageDetailScreen(
+            spaceId: spaceId,
+            pageId: item.id,
+            pageTitle: item.title,
+            visitedHistory: visitedHistory, // Keep same history
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildBody(
@@ -66,18 +121,11 @@ class PageDetailScreen extends ConsumerWidget {
           if (state.breadcrumb.isNotEmpty)
             _BreadcrumbNavigation(
               items: state.breadcrumb,
+              currentPageId: pageId,
               onItemTap: (item) {
                 // Navigate to the selected breadcrumb item
                 if (item.id != pageId) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => PageDetailScreen(
-                        spaceId: spaceId,
-                        pageId: item.id,
-                        pageTitle: item.title,
-                      ),
-                    ),
-                  );
+                  _navigateToBreadcrumbItem(context, item);
                 }
               },
             ),
@@ -110,14 +158,23 @@ class PageDetailScreen extends ConsumerWidget {
               onInternalLinkTap: (targetPageId) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
+                    settings: RouteSettings(name: '/page/$targetPageId'),
                     builder: (context) => PageDetailScreen(
                       spaceId: spaceId,
                       pageId: targetPageId,
                       pageTitle: 'Page',
+                      visitedHistory: _currentVisitedHistory,
                     ),
                   ),
                 );
               },
+            )
+          else if (state.hasChildPages)
+            // Show child pages list for folder/group pages
+            _ChildPagesList(
+              childPages: state.childPages,
+              spaceId: spaceId,
+              visitedHistory: _currentVisitedHistory,
             )
           else
             _EmptyContentPlaceholder(theme: theme),
@@ -133,10 +190,12 @@ class PageDetailScreen extends ConsumerWidget {
 /// Breadcrumb navigation widget
 class _BreadcrumbNavigation extends StatelessWidget {
   final List<BreadcrumbItem> items;
-  final void Function(BreadcrumbItem) onItemTap;
+  final String currentPageId;
+  final void Function(BreadcrumbItem item) onItemTap;
 
   const _BreadcrumbNavigation({
     required this.items,
+    required this.currentPageId,
     required this.onItemTap,
   });
 
@@ -159,7 +218,9 @@ class _BreadcrumbNavigation extends StatelessWidget {
                 ),
               ),
             InkWell(
-              onTap: () => onItemTap(items[i]),
+              onTap: items[i].id != currentPageId
+                  ? () => onItemTap(items[i])
+                  : null,
               borderRadius: BorderRadius.circular(4),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -176,6 +237,103 @@ class _BreadcrumbNavigation extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Child pages list for folder/group pages
+class _ChildPagesList extends StatelessWidget {
+  final List<ContentPage> childPages;
+  final String spaceId;
+  final List<String> visitedHistory;
+
+  const _ChildPagesList({
+    required this.childPages,
+    required this.spaceId,
+    required this.visitedHistory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pages',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...childPages.map((page) => _ChildPageItem(
+              page: page,
+              spaceId: spaceId,
+              visitedHistory: visitedHistory,
+            )),
+      ],
+    );
+  }
+}
+
+/// Individual child page item
+class _ChildPageItem extends StatelessWidget {
+  final ContentPage page;
+  final String spaceId;
+  final List<String> visitedHistory;
+
+  const _ChildPageItem({
+    required this.page,
+    required this.spaceId,
+    required this.visitedHistory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(
+          page.isGroup ? Icons.folder_outlined : Icons.article_outlined,
+          color: page.isGroup
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+        title: Text(
+          page.title,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle: page.description != null
+            ? Text(
+                page.description!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              )
+            : null,
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              settings: RouteSettings(name: '/page/${page.id}'),
+              builder: (context) => PageDetailScreen(
+                spaceId: spaceId,
+                pageId: page.id,
+                pageTitle: page.title,
+                visitedHistory: visitedHistory,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
