@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/space_entity.dart';
 import '../../providers/space_provider.dart';
 import '../../widgets/common/error_state.dart';
+import '../pages/pages_list_screen.dart';
 
 /// Convert emoji code point string to actual emoji character
 String? _convertEmojiCode(String? emojiCode) {
@@ -214,8 +215,13 @@ class _SpaceDetailScreenState extends ConsumerState<SpaceDetailScreen> {
             title: 'Browse Content',
             subtitle: 'View pages and documents',
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Content browser coming soon')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PagesListScreen(
+                    spaceId: widget.spaceId,
+                    spaceTitle: space.title,
+                  ),
+                ),
               );
             },
           ),

@@ -147,10 +147,10 @@ lib/
 - [x] Space search/filter
 
 #### 3.3 Pages Navigation
-- [ ] Table of contents (tree view)
-- [ ] Page list view
-- [ ] Breadcrumb navigation
-- [ ] Page search within space
+- [x] Table of contents (tree view)
+- [x] Page list view
+- [x] Breadcrumb navigation
+- [x] Page search within space
 
 #### 3.4 Markdown Rendering
 - [ ] Basic markdown rendering

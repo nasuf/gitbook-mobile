@@ -8,15 +8,25 @@ import 'core/storage/hive_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize app configuration
-  AppConfig.init(Environment.dev);
+  try {
+    AppConfig.init(Environment.dev);
+    await HiveStorage.initialize();
 
-  // Initialize Hive storage (opens all required boxes)
-  await HiveStorage.initialize();
-
-  runApp(
-    const ProviderScope(
-      child: GitBookApp(),
-    ),
-  );
+    runApp(
+      const ProviderScope(
+        child: GitBookApp(),
+      ),
+    );
+  } catch (e) {
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Init Error: $e', style: const TextStyle(color: Colors.red)),
+          ),
+        ),
+      ),
+    ));
+  }
 }
