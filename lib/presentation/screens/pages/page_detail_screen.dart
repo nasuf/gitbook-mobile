@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/content_entity.dart';
 import '../../providers/content_provider.dart';
 import '../../widgets/common/error_state.dart';
+import '../../widgets/markdown/gitbook_markdown.dart';
 
 /// Screen showing page content with breadcrumb navigation
 class PageDetailScreen extends ConsumerWidget {
@@ -100,37 +101,26 @@ class PageDetailScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           // Page content
           if (content.hasMarkdown)
-            _MarkdownContent(markdown: content.markdown!)
-          else
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.article_outlined,
-                    size: 48,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Content Preview',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Full markdown rendering will be available in Phase 3.4',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+            GitBookMarkdown(
+              data: content.markdown!,
+              spaceId: spaceId,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              onInternalLinkTap: (targetPageId) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PageDetailScreen(
+                      spaceId: spaceId,
+                      pageId: targetPageId,
+                      pageTitle: 'Page',
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ],
-              ),
-            ),
+                );
+              },
+            )
+          else
+            _EmptyContentPlaceholder(theme: theme),
           const SizedBox(height: 24),
           // Page metadata
           _PageMetadata(content: content),
@@ -191,31 +181,41 @@ class _BreadcrumbNavigation extends StatelessWidget {
   }
 }
 
-/// Simple markdown content display (placeholder for Phase 3.4)
-class _MarkdownContent extends StatelessWidget {
-  final String markdown;
+/// Empty content placeholder when no markdown available
+class _EmptyContentPlaceholder extends StatelessWidget {
+  final ThemeData theme;
 
-  const _MarkdownContent({required this.markdown});
+  const _EmptyContentPlaceholder({required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // For now, display raw markdown with basic formatting
-    // Full markdown rendering will be implemented in Phase 3.4
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: SelectableText(
-        markdown,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontFamily: 'monospace',
-          height: 1.5,
-        ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.article_outlined,
+            size: 48,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No Content',
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This page does not have any content yet.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

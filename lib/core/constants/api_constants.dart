@@ -38,7 +38,7 @@ class ApiConstants {
   static String spaceContentByPath(String spaceId, String path) =>
       '/spaces/$spaceId/content/path/$path';
   static String spaceContentById(String spaceId, String pageId) =>
-      '/spaces/$spaceId/content/$pageId';
+      '/spaces/$spaceId/content/page/$pageId';
 
   // Change Requests endpoints
   static String changeRequests(String spaceId) =>

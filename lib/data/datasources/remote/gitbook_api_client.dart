@@ -1,5 +1,6 @@
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/utils/gitbook_document_converter.dart';
 import '../../models/models.dart';
 
 /// GitBook API client for making API calls
@@ -207,26 +208,189 @@ class GitBookApiClient {
 
   /// Get space content (table of contents)
   Future<SpaceContentResponse> getSpaceContent(String spaceId) async {
-    final response = await _client.get<Map<String, dynamic>>(
-      ApiConstants.spaceContent(spaceId),
+    try {
+      // Use dynamic type to avoid Dio's automatic type casting
+      final response = await _client.get<dynamic>(
+        ApiConstants.spaceContent(spaceId),
+      );
+
+      // Manually handle the response data
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return _parseSpaceContentResponse(data);
+      } else if (data is Map) {
+        return _parseSpaceContentResponse(Map<String, dynamic>.from(data));
+      } else {
+        throw FormatException('Unexpected response type: ${data.runtimeType}');
+      }
+    } catch (e, stackTrace) {
+      throw Exception('getSpaceContent failed: $e\nStack: $stackTrace');
+    }
+  }
+
+  /// Parse space content response with safe type handling
+  SpaceContentResponse _parseSpaceContentResponse(Map<String, dynamic> json) {
+    final pagesJson = json['pages'] as List<dynamic>? ?? [];
+    final pages = pagesJson.map((e) {
+      if (e is Map<String, dynamic>) {
+        return _parseContentModel(e);
+      }
+      throw FormatException('Invalid page format: ${e.runtimeType}');
+    }).toList();
+
+    return SpaceContentResponse(pages: pages);
+  }
+
+  /// Parse ContentModel with safe type handling
+  ContentModel _parseContentModel(Map<String, dynamic> json) {
+    String? safeString(dynamic value) {
+      if (value == null) return null;
+      if (value is String) return value;
+      return null;
+    }
+
+    // Parse type
+    ContentType type = ContentType.document;
+    final typeValue = json['type'];
+    if (typeValue is String) {
+      type = ContentType.values.firstWhere(
+        (e) => e.name == typeValue,
+        orElse: () => ContentType.document,
+      );
+    }
+
+    // Parse nested pages recursively
+    List<ContentModel>? childPages;
+    final pagesJson = json['pages'];
+    if (pagesJson is List) {
+      childPages = pagesJson.whereType<Map<String, dynamic>>().map(_parseContentModel).toList();
+    }
+
+    // Parse URLs
+    ContentUrls? urls;
+    final urlsJson = json['urls'];
+    if (urlsJson is Map<String, dynamic>) {
+      urls = ContentUrls(
+        location: safeString(urlsJson['location']),
+        app: safeString(urlsJson['app']),
+      );
+    }
+
+    return ContentModel(
+      id: json['id']?.toString() ?? '',
+      title: safeString(json['title']) ?? 'Untitled',
+      type: type,
+      path: safeString(json['path']),
+      slug: safeString(json['slug']),
+      description: safeString(json['description']),
+      createdAt: json['createdAt'] is String
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] is String
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
+      urls: urls,
+      pages: childPages,
     );
-    return SpaceContentResponse.fromJson(response.data!);
   }
 
   /// Get page by path
   Future<DocumentContent> getPageByPath(String spaceId, String path) async {
-    final response = await _client.get<Map<String, dynamic>>(
-      ApiConstants.spaceContentByPath(spaceId, path),
-    );
-    return DocumentContent.fromJson(response.data!);
+    try {
+      // Use dynamic type to avoid Dio's automatic type casting
+      final response = await _client.get<dynamic>(
+        ApiConstants.spaceContentByPath(spaceId, path),
+        queryParameters: {'documentFormat': 'markdown'},
+      );
+
+      // Manually handle the response data
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return _parseDocumentContent(data);
+      } else if (data is Map) {
+        return _parseDocumentContent(Map<String, dynamic>.from(data));
+      } else {
+        throw FormatException('Unexpected response type: ${data.runtimeType}');
+      }
+    } catch (e, stackTrace) {
+      throw Exception('getPageByPath failed: $e\nStack: $stackTrace');
+    }
   }
 
   /// Get page by ID
   Future<DocumentContent> getPageById(String spaceId, String pageId) async {
-    final response = await _client.get<Map<String, dynamic>>(
-      ApiConstants.spaceContentById(spaceId, pageId),
+    try {
+      // Use dynamic type to avoid Dio's automatic type casting
+      final response = await _client.get<dynamic>(
+        ApiConstants.spaceContentById(spaceId, pageId),
+        queryParameters: {'documentFormat': 'markdown'},
+      );
+
+      // Manually handle the response data
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return _parseDocumentContent(data);
+      } else if (data is Map) {
+        // Convert to proper type if needed
+        return _parseDocumentContent(Map<String, dynamic>.from(data));
+      } else {
+        throw FormatException('Unexpected response type: ${data.runtimeType}');
+      }
+    } catch (e, stackTrace) {
+      // Re-throw with more context for debugging
+      throw Exception('getPageById failed: $e\nStack: $stackTrace');
+    }
+  }
+
+  /// Parse document content handling different response formats
+  DocumentContent _parseDocumentContent(Map<String, dynamic> json) {
+    String? safeString(dynamic value) {
+      if (value == null) return null;
+      if (value is String) return value;
+      return null;
+    }
+
+    // Handle the document field
+    final document = json['document'];
+    String? markdownContent;
+
+    if (document is String) {
+      markdownContent = document;
+    } else if (document is Map<String, dynamic>) {
+      final markdown = document['markdown'];
+      if (markdown is String) {
+        markdownContent = markdown;
+      } else if (document['nodes'] is List) {
+        markdownContent = GitBookDocumentConverter.toMarkdown(document);
+      }
+    }
+
+    ContentType? contentType;
+    final typeValue = json['type'];
+    if (typeValue is String) {
+      contentType = ContentType.values.cast<ContentType?>().firstWhere(
+            (e) => e?.name == typeValue,
+            orElse: () => null,
+          );
+    }
+
+    return DocumentContent(
+      id: json['id']?.toString() ?? '',
+      title: safeString(json['title']) ?? 'Untitled',
+      type: contentType,
+      path: safeString(json['path']),
+      slug: safeString(json['slug']),
+      description: safeString(json['description']),
+      createdAt: json['createdAt'] is String
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] is String
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
+      document: markdownContent != null
+          ? DocumentBody(markdown: markdownContent)
+          : null,
     );
-    return DocumentContent.fromJson(response.data!);
   }
 
   /// Create a new page
@@ -248,7 +412,7 @@ class GitBookApiClient {
         if (parentId != null) 'parent': parentId,
       },
     );
-    return ContentModel.fromJson(response.data!);
+    return _parseContentModel(response.data!);
   }
 
   /// Update a page
@@ -269,7 +433,7 @@ class GitBookApiClient {
         if (document != null) 'document': document,
       },
     );
-    return DocumentContent.fromJson(response.data!);
+    return _parseDocumentContent(response.data!);
   }
 
   /// Delete a page

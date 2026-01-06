@@ -153,18 +153,18 @@ lib/
 - [x] Page search within space
 
 #### 3.4 Markdown Rendering
-- [ ] Basic markdown rendering
-- [ ] Code block syntax highlighting
-- [ ] Table rendering
-- [ ] Image loading and caching
-- [ ] Link handling (internal/external)
+- [x] Basic markdown rendering
+- [x] Code block syntax highlighting
+- [x] Table rendering
+- [x] Image loading and caching
+- [x] Link handling (internal/external)
 - [ ] LaTeX/Math rendering (optional)
 - [ ] Mermaid diagram rendering (optional)
-- [ ] Custom GitBook blocks rendering
-  - [ ] Hints (info, warning, danger, success)
-  - [ ] Tabs
-  - [ ] Expandable sections
-  - [ ] Embeds
+- [x] Custom GitBook blocks rendering
+  - [x] Hints (info, warning, danger, success)
+  - [x] Tabs
+  - [x] Expandable sections
+  - [x] Embeds
 
 ---
 

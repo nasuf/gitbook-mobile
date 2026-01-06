@@ -69,11 +69,18 @@ class ErrorInterceptor extends Interceptor {
     String? errorMessage;
     String? errorCode;
 
+    // Helper to safely extract string values
+    String? safeString(dynamic value) {
+      if (value == null) return null;
+      if (value is String) return value;
+      return null;
+    }
+
     if (data is Map<String, dynamic>) {
-      errorMessage = data['message'] as String? ??
-          data['error'] as String? ??
-          data['error_description'] as String?;
-      errorCode = data['code'] as String?;
+      errorMessage = safeString(data['message']) ??
+          safeString(data['error']) ??
+          safeString(data['error_description']);
+      errorCode = safeString(data['code']);
     }
 
     switch (statusCode) {
