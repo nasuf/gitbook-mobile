@@ -189,11 +189,14 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
       );
       state = state.copyWith(spaces: spaces, isLoading: false);
 
-      // If in hierarchical mode, always load all collections
+      // If in hierarchical mode, load collections if needed or forced
       if (state.displayMode == SpaceDisplayMode.hierarchical) {
-        // Force reload collections to ensure we have the latest data
-        await loadAllCollections();
-        await _loadCollections();
+        final needsLoad = forceRefresh ||
+            (state.allCollections.isEmpty && state.collections.isEmpty);
+        if (needsLoad) {
+          await loadAllCollections();
+          await _loadCollections();
+        }
       }
     } catch (e) {
       state = state.copyWith(
@@ -234,12 +237,19 @@ class SpacesNotifier extends StateNotifier<SpacesState> {
 
   /// Set display mode (flat/hierarchical)
   Future<void> setDisplayMode(SpaceDisplayMode mode) async {
-    state = state.copyWith(displayMode: mode, isLoading: mode == SpaceDisplayMode.hierarchical);
     if (mode == SpaceDisplayMode.hierarchical) {
-      // Always reload collections when switching to hierarchical mode
-      await loadAllCollections();
-      await _loadCollections();
-      state = state.copyWith(isLoading: false);
+      // Only load collections if not already loaded
+      final needsLoad = state.allCollections.isEmpty && state.collections.isEmpty;
+      if (needsLoad) {
+        state = state.copyWith(displayMode: mode, isLoading: true);
+        await loadAllCollections();
+        await _loadCollections();
+        state = state.copyWith(isLoading: false);
+      } else {
+        state = state.copyWith(displayMode: mode);
+      }
+    } else {
+      state = state.copyWith(displayMode: mode);
     }
   }
 

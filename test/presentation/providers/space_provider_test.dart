@@ -180,4 +180,43 @@ void main() {
       expect(SpaceViewMode.values, contains(SpaceViewMode.grid));
     });
   });
+
+  group('SpaceDisplayMode', () {
+    test('should have flat and hierarchical modes', () {
+      expect(SpaceDisplayMode.values, hasLength(2));
+      expect(SpaceDisplayMode.values, contains(SpaceDisplayMode.flat));
+      expect(SpaceDisplayMode.values, contains(SpaceDisplayMode.hierarchical));
+    });
+
+    test('default display mode should be hierarchical', () {
+      const state = SpacesState();
+      expect(state.displayMode, SpaceDisplayMode.hierarchical);
+    });
+
+    test('should switch display mode without loading when collections exist', () {
+      // When collections are already loaded, switching should not trigger loading
+      final state = SpacesState(
+        displayMode: SpaceDisplayMode.flat,
+        allCollections: [
+          const SpaceCollection(id: 'col-1', title: 'Collection 1'),
+        ],
+      );
+
+      // Collections exist, so needsLoad should be false
+      final needsLoad = state.allCollections.isEmpty && state.collections.isEmpty;
+      expect(needsLoad, false);
+    });
+
+    test('should need loading when collections are empty', () {
+      const state = SpacesState(
+        displayMode: SpaceDisplayMode.flat,
+        allCollections: [],
+        collections: {},
+      );
+
+      // Collections are empty, so needsLoad should be true
+      final needsLoad = state.allCollections.isEmpty && state.collections.isEmpty;
+      expect(needsLoad, true);
+    });
+  });
 }

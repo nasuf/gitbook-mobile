@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gitbook_mobile/core/storage/cache_manager.dart';
 import 'package:gitbook_mobile/data/datasources/local/content_local_datasource.dart';
 import 'package:gitbook_mobile/data/datasources/remote/gitbook_api_client.dart';
+import 'package:gitbook_mobile/data/models/common_model.dart';
 import 'package:gitbook_mobile/data/models/space_model.dart' as model;
 import 'package:gitbook_mobile/data/repositories/space_repository_impl.dart';
 import 'package:gitbook_mobile/domain/entities/space_entity.dart';
@@ -38,54 +39,93 @@ void main() {
   });
 
   group('getSpaces', () {
-    test('should return cached spaces when available', () async {
-      final cachedSpaces = [
-        const model.SpaceModel(id: 'space-1', title: 'Space 1'),
-        const model.SpaceModel(id: 'space-2', title: 'Space 2'),
-      ];
-      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
-          .thenAnswer((_) async => cachedSpaces);
+    test('should fetch from API and cache results', () async {
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer(
+        (_) async => const model.SpacesListResponse(items: [
+          model.SpaceModel(id: 'space-1', title: 'Space 1'),
+          model.SpaceModel(id: 'space-2', title: 'Space 2'),
+        ]),
+      );
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
+      when(() => mockLocalDataSource.cacheSpaces(any()))
+          .thenAnswer((_) async {});
 
       final result = await repository.getSpaces('org-123');
 
       expect(result.length, 2);
       expect(result[0].id, 'space-1');
       expect(result[1].id, 'space-2');
-      verifyNever(() => mockApiClient.listSpaces('org-123'));
+      verify(() => mockApiClient.listSpaces('org-123', page: null)).called(1);
+      verify(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .called(1);
+      verify(() => mockLocalDataSource.cacheSpaces(any())).called(1);
     });
 
-    test('should fetch from API when cache is empty', () async {
-      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
-          .thenAnswer((_) async => []);
-      when(() => mockApiClient.listSpaces('org-123')).thenAnswer(
-        (_) async => const model.SpacesListResponse(items: [
-          model.SpaceModel(id: 'space-1', title: 'Space 1'),
+    test('should handle pagination and fetch all pages', () async {
+      // First call returns page 1 with next page token
+      when(() => mockApiClient.listSpaces('org-123', page: null)).thenAnswer(
+        (_) async => const model.SpacesListResponse(
+          items: [model.SpaceModel(id: 'space-1', title: 'Space 1')],
+          next: PageInfo(page: 'page2'),
+        ),
+      );
+      // Second call returns page 2 with no next page
+      when(() => mockApiClient.listSpaces('org-123', page: 'page2')).thenAnswer(
+        (_) async => const model.SpacesListResponse(
+          items: [model.SpaceModel(id: 'space-2', title: 'Space 2')],
+        ),
+      );
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
+      when(() => mockLocalDataSource.cacheSpaces(any()))
+          .thenAnswer((_) async {});
+
+      final result = await repository.getSpaces('org-123');
+
+      expect(result.length, 2);
+      expect(result[0].id, 'space-1');
+      expect(result[1].id, 'space-2');
+      verify(() => mockApiClient.listSpaces('org-123', page: null)).called(1);
+      verify(() => mockApiClient.listSpaces('org-123', page: 'page2')).called(1);
+    });
+
+    test('should filter out trashed spaces', () async {
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer(
+        (_) async => model.SpacesListResponse(items: [
+          const model.SpaceModel(id: 'space-1', title: 'Active'),
+          model.SpaceModel(
+            id: 'space-2',
+            title: 'Trashed',
+            deletedAt: DateTime.now(),
+          ),
         ]),
       );
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
       when(() => mockLocalDataSource.cacheSpaces(any()))
           .thenAnswer((_) async {});
 
       final result = await repository.getSpaces('org-123');
 
       expect(result.length, 1);
-      verify(() => mockApiClient.listSpaces('org-123')).called(1);
+      expect(result[0].id, 'space-1');
     });
 
-    test('should force refresh when requested', () async {
-      when(() => mockApiClient.listSpaces('org-123')).thenAnswer(
-        (_) async => const model.SpacesListResponse(items: [
-          model.SpaceModel(id: 'space-1', title: 'Fresh Space'),
-        ]),
-      );
-      when(() => mockLocalDataSource.cacheSpaces(any()))
-          .thenAnswer((_) async {});
+    test('should fall back to cache on network error', () async {
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenThrow(Exception('Network error'));
+      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
+          .thenAnswer((_) async => [
+                const model.SpaceModel(id: 'cached-1', title: 'Cached'),
+              ]);
 
-      final result = await repository.getSpaces('org-123', forceRefresh: true);
+      final result = await repository.getSpaces('org-123');
 
       expect(result.length, 1);
-      expect(result[0].title, 'Fresh Space');
-      verify(() => mockApiClient.listSpaces('org-123')).called(1);
-      verifyNever(() => mockLocalDataSource.getSpacesByOrganization('org-123'));
+      expect(result[0].id, 'cached-1');
     });
   });
 
@@ -182,11 +222,36 @@ void main() {
           .thenAnswer((_) async {});
       when(() => mockCacheManager.invalidateSpace('space-123'))
           .thenAnswer((_) async {});
+      when(() => mockCacheManager.removeRecentItem('space', 'space-123'))
+          .thenAnswer((_) async {});
 
       await repository.deleteSpace('space-123');
 
       verify(() => mockApiClient.deleteSpace('space-123')).called(1);
       verify(() => mockCacheManager.invalidateSpace('space-123')).called(1);
+      verify(() => mockCacheManager.removeRecentItem('space', 'space-123'))
+          .called(1);
+    });
+  });
+
+  group('getTrashedSpaces', () {
+    test('should fetch all pages and return only trashed spaces', () async {
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer(
+        (_) async => model.SpacesListResponse(items: [
+          const model.SpaceModel(id: 'space-1', title: 'Active'),
+          model.SpaceModel(
+            id: 'space-2',
+            title: 'Trashed',
+            deletedAt: DateTime.now(),
+          ),
+        ]),
+      );
+
+      final result = await repository.getTrashedSpaces('org-123');
+
+      expect(result.length, 1);
+      expect(result[0].id, 'space-2');
     });
   });
 
@@ -197,8 +262,12 @@ void main() {
         const model.SpaceModel(id: 'space-2', title: 'Other Space'),
         const model.SpaceModel(id: 'space-3', title: 'Another Matching'),
       ];
-      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
-          .thenAnswer((_) async => spaces);
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer((_) async => model.SpacesListResponse(items: spaces));
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
+      when(() => mockLocalDataSource.cacheSpaces(any()))
+          .thenAnswer((_) async {});
 
       final result = await repository.searchSpaces('org-123', 'match');
 
@@ -216,8 +285,12 @@ void main() {
         ),
         const model.SpaceModel(id: 'space-2', title: 'Other'),
       ];
-      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
-          .thenAnswer((_) async => spaces);
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer((_) async => model.SpacesListResponse(items: spaces));
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
+      when(() => mockLocalDataSource.cacheSpaces(any()))
+          .thenAnswer((_) async {});
 
       final result = await repository.searchSpaces('org-123', 'keyword');
 
@@ -230,8 +303,12 @@ void main() {
         const model.SpaceModel(id: 'space-1', title: 'UPPERCASE'),
         const model.SpaceModel(id: 'space-2', title: 'lowercase'),
       ];
-      when(() => mockLocalDataSource.getSpacesByOrganization('org-123'))
-          .thenAnswer((_) async => spaces);
+      when(() => mockApiClient.listSpaces('org-123', page: any(named: 'page')))
+          .thenAnswer((_) async => model.SpacesListResponse(items: spaces));
+      when(() => mockLocalDataSource.clearSpacesByOrganization('org-123'))
+          .thenAnswer((_) async {});
+      when(() => mockLocalDataSource.cacheSpaces(any()))
+          .thenAnswer((_) async {});
 
       final result = await repository.searchSpaces('org-123', 'LOWER');
 

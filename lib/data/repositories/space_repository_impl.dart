@@ -20,6 +20,23 @@ class SpaceRepositoryImpl implements SpaceRepository {
         _localDataSource = localDataSource,
         _cacheManager = cacheManager;
 
+  /// Fetches all pages of spaces from the API
+  Future<List<model.SpaceModel>> _fetchAllSpaces(String organizationId) async {
+    final allSpaces = <model.SpaceModel>[];
+    String? nextPage;
+
+    do {
+      final response = await _apiClient.listSpaces(
+        organizationId,
+        page: nextPage,
+      );
+      allSpaces.addAll(response.items);
+      nextPage = response.next?.page;
+    } while (nextPage != null);
+
+    return allSpaces;
+  }
+
   @override
   Future<List<Space>> getSpaces(
     String organizationId, {
@@ -28,10 +45,10 @@ class SpaceRepositoryImpl implements SpaceRepository {
     // Always fetch from API to get fresh data
     // This ensures deleted spaces don't appear from stale cache
     try {
-      final response = await _apiClient.listSpaces(organizationId);
+      final allSpaces = await _fetchAllSpaces(organizationId);
 
       // Filter out trashed spaces (those with deletedAt set)
-      final activeSpaces = response.items
+      final activeSpaces = allSpaces
           .where((space) => space.deletedAt == null)
           .toList();
 
@@ -75,8 +92,20 @@ class SpaceRepositoryImpl implements SpaceRepository {
 
   @override
   Future<List<SpaceCollection>> getCollections(String organizationId) async {
-    final response = await _apiClient.listCollections(organizationId);
-    return response.items.map(_mapToCollection).toList();
+    // Fetch all pages of collections
+    final allCollections = <collection_model.CollectionModel>[];
+    String? nextPage;
+
+    do {
+      final response = await _apiClient.listCollections(
+        organizationId,
+        page: nextPage,
+      );
+      allCollections.addAll(response.items);
+      nextPage = response.next;
+    } while (nextPage != null);
+
+    return allCollections.map(_mapToCollection).toList();
   }
 
   @override
@@ -151,15 +180,13 @@ class SpaceRepositoryImpl implements SpaceRepository {
 
   @override
   Future<List<Space>> getTrashedSpaces(String organizationId) async {
-    // Fetch all spaces from API (including trashed ones)
-    final response = await _apiClient.listSpaces(organizationId);
+    final allSpaces = await _fetchAllSpaces(organizationId);
 
     // Filter to only trashed spaces (those with deletedAt set)
-    final trashedSpaces = response.items
+    return allSpaces
         .where((space) => space.deletedAt != null)
+        .map(_mapToSpace)
         .toList();
-
-    return trashedSpaces.map(_mapToSpace).toList();
   }
 
   @override
